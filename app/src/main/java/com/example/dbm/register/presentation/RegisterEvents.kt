@@ -1,7 +1,7 @@
 package com.example.dbm.register.presentation
 
-import com.example.dbm.login.domain.objects.Login
-import com.example.dbm.login.domain.objects.User
+import com.example.dbm.login.presentation.objects.Login
+import com.example.dbm.login.presentation.objects.User
 import com.example.dbm.presentation.UiText
 
 interface RegisterEvents {

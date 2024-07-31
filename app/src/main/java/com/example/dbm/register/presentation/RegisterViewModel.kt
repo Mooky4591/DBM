@@ -4,11 +4,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.dbm.error_handling.domain.Result
+import com.example.dbm.error_handling.domain.asUiText
+import com.example.dbm.login.presentation.objects.User
 import com.example.dbm.presentation.UiText
 import com.example.dbm.register.domain.use_case.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
@@ -31,7 +36,7 @@ class RegisterViewModel @Inject constructor(
             )
 
             is RegisterEvents.OnPasswordChanged -> state = state.copy(password = event.password)
-            is RegisterEvents.OnGetStartedClick -> register()
+            is RegisterEvents.OnGetStartedClick -> register(event.login)
             is RegisterEvents.OnTogglePasswordVisibility -> state =
                 state.copy(isPasswordVisible = event.isPasswordVisible)
 
@@ -41,8 +46,41 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun register() {
-        TODO("Not yet implemented")
+    private fun register(user: User) {
+        if (validatePassword(user.password ?: "")) {
+            viewModelScope.launch {
+                when (val result = registerUseCase.registerUser(user)) {
+                    is Result.Error -> {
+                        state = state.copy(isRegistrationSuccessful = false)
+                        state = state.copy(
+                            networkErrorMessage = result.error.asUiText()
+                        )
+                        eventChannel.send(RegisterEvents.RegistrationFailed(state.networkErrorMessage!!))
+                    }
+
+                    is Result.Success -> {
+                        state = state.copy(isRegistrationSuccessful = true)
+                        eventChannel.send(RegisterEvents.RegistrationSuccessful)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun validatePassword(password: String): Boolean {
+        return when (val result = registerUseCase.isPasswordValid(password)) {
+            is Result.Error -> {
+                state = state.copy(
+                    passwordInvalidErrorMessage = result.error.asUiText()
+                )
+                false
+            }
+
+            is Result.Success -> {
+                state = state.copy(passwordInvalidErrorMessage = null)
+                true
+            }
+       }
     }
 }
 
@@ -52,7 +90,7 @@ data class RegisterState(
     var firstName: String? = null,
     var lastName: String? = null,
     var phoneNumber: String? = null,
-    var userId: UUID? = null,
+    var userId: String? = null,
     var isEmailValid: Boolean = false,
     var isPasswordVisible: Boolean = false,
     var isRegistrationSuccessful: Boolean = false,

@@ -1,6 +1,5 @@
 package com.example.dbm.login.presentation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +20,7 @@ import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -31,16 +31,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dbm.R
-import com.example.dbm.login.domain.objects.Login
+import com.example.dbm.login.presentation.objects.Login
 import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
@@ -86,7 +89,8 @@ fun LoginScreen(
                         email = state.email
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-                    CreatePasswordField(password = state.password,
+                    CreatePasswordField(
+                        password = state.password,
                         onValueChange = { password -> onEvent(LoginEvents.OnPasswordChanged(password)) },
                         isPasswordVisible = state.isPasswordVisible,
                         onClick = { isPasswordVisible ->
@@ -98,7 +102,6 @@ fun LoginScreen(
                         }
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-                    val loginObject = Login(state.email, state.password)
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
@@ -108,11 +111,11 @@ fun LoginScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             ActionButton(
-                                onClick = { onEvent(LoginEvents.OnLoginClick(loginObject)) },
+                                onClick = { onEvent(LoginEvents.OnLoginClick) },
                                 text = stringResource(
                                     id = R.string.login
                                 ),
-                                login = loginObject
+                                width = 200.dp
                             )
                         }
                         Spacer(modifier = Modifier.height(5.dp))
@@ -122,6 +125,8 @@ fun LoginScreen(
                         ) {
                             CreateSignUpLink(onEvent = { onEvent(LoginEvents.OnRegisterLinkClick) })
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        CreateSpinner(isDisplay = state.isLoggingIn)
                     }
                 }
             }
@@ -138,7 +143,6 @@ fun TopLogo() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CreateEmailField(isEmailValid: Boolean, onValueChange: (String) -> Unit, email: String) {
     TextField(
@@ -174,7 +178,7 @@ fun CreateEmailField(isEmailValid: Boolean, onValueChange: (String) -> Unit, ema
 @Composable
 fun CreatePasswordField(password: String, onValueChange: (String) -> Unit, isPasswordVisible: Boolean, onClick: (Boolean) -> Unit) {
 
-    TextField(
+    TextField (
         value = password,
         onValueChange = {
             onValueChange(it)
@@ -225,18 +229,19 @@ fun CreateHidePasswordToggle(isPasswordVisible: Boolean, onClick: (Boolean) -> U
 
 @Composable
 fun ActionButton(
-    onClick: (Login) -> Unit,
+    onClick: () -> Unit,
     text: String,
-    login: Login) {
+    width: Dp
+) {
     Button(
         onClick = {
-            onClick(login)
+            onClick()
         },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
         modifier = Modifier
-            .width(200.dp)
+            .width(width)
             .wrapContentHeight(),
         contentPadding = PaddingValues()
     ) {
@@ -251,7 +256,7 @@ fun ActionButton(
                         )
                     )
                 )
-                .width(200.dp)
+                .width(width)
                 .wrapContentHeight()
                 .padding(top = 10.dp, bottom = 10.dp),
             contentAlignment = Alignment.Center
@@ -270,7 +275,31 @@ fun CreateSignUpLink(onEvent: (LoginEvents) -> Unit) {
         modifier = Modifier.clickable {
             onEvent(LoginEvents.OnRegisterLinkClick)
         },
-        color = Color(android.graphics.Color.parseColor("#632366")),
+        color = DbmPurple,
         fontStyle = FontStyle.Italic
     )
+}
+
+@Composable
+fun CreateSpinner(
+    isDisplay: Boolean
+) {
+    val focusManager = LocalFocusManager.current
+    if (isDisplay) {
+        CircularProgressIndicator(
+            color = DbmPurple,
+            modifier = Modifier
+                .height(75.dp)
+                .width(75.dp),
+            strokeWidth = 10.dp,
+            trackColor = Color.Transparent,
+            strokeCap = StrokeCap.Round
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = "Loading...",
+            fontSize = 15.sp
+        )
+        focusManager.clearFocus()
+    }
 }

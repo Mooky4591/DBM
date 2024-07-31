@@ -1,12 +1,10 @@
 package com.example.dbm.data.remote.dtos
 
-import java.util.UUID
 
 data class RegisterUserDTO(
-    val firstName: String,
-    val lastName: String,
-    val userId: UUID,
+    val first_name: String,
+    val last_name: String,
     val email: String,
-    val phoneNumber: String,
+    val phone_number: String,
     val password: String
 )

@@ -1,14 +1,16 @@
 package com.example.dbm.authorization.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.example.dbm.authorization.data.AuthRepositoryImpl
 import com.example.dbm.authorization.domain.AuthRepository
+import com.example.dbm.data.local.user_preferences.UserPreferencesImpl
 import com.example.dbm.data.local.daos.UserDao
 import com.example.dbm.data.local.database.DbmDatabase
 import com.example.dbm.data.remote.DBMApi
+import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.PasswordValidator
-import com.example.dbm.login.domain.objects.User
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -29,7 +31,7 @@ object AuthModule {
     @Singleton
     fun provideAuthRepository(
         userDao: UserDao,
-        api: DBMApi
+        api: DBMApi,
     ): AuthRepository {
         return AuthRepositoryImpl(userDao, api)
     }
@@ -46,7 +48,7 @@ object AuthModule {
     @Singleton
     fun provideRetrofitInstance(httpClient: OkHttpClient): DBMApi {
         return Retrofit.Builder()
-            .baseUrl("https://tasky.pl-coding.com/")
+            .baseUrl("https://8wx262zas0.execute-api.us-east-1.amazonaws.com/")
             .addConverterFactory(
                 MoshiConverterFactory.create(
                     Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
@@ -81,5 +83,17 @@ object AuthModule {
     @Singleton
     fun providePasswordValidator(): PasswordValidator {
         return PasswordValidator()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserPreferences(sharedPreferences: SharedPreferences): UserPreferences {
+        return UserPreferencesImpl(sharedPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
     }
 }

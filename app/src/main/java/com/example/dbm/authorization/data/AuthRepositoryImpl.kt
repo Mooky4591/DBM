@@ -6,17 +6,19 @@ import com.example.dbm.data.local.daos.UserDao
 import com.example.dbm.data.local.entities.UserEntity
 import com.example.dbm.data.remote.DBMApi
 import com.example.dbm.data.remote.dtos.RegisterUserDTO
+import com.example.dbm.data.remote.response_objects.LoginUserResponse
+import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.DataError
 import com.example.dbm.error_handling.domain.Result
-import com.example.dbm.login.domain.objects.Login
-import com.example.dbm.login.domain.objects.User
+import com.example.dbm.login.presentation.objects.Login
+import com.example.dbm.login.presentation.objects.User
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
-    private val retrofit: DBMApi
+    private val retrofit: DBMApi,
 ): AuthRepository {
 
     override fun isEmailValid(email: String): Boolean {
@@ -26,10 +28,9 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun loginUser(login: Login): Result<User, DataError.Network> {
         return try {
             val loginUser = retrofit.loginUser(login)
-            val user = loginUser.toUser()
-            val userEntity = loginUser.toUserEntity(login.email, loginUser.userId)
+            val userEntity = loginUser.toUserEntity(loginUser.email, loginUser.userId, loginUser.firstName, loginUser.lastName)
             userDao.insertUser(userEntity)
-            Result.Success(user)
+            Result.Success(loginUser.toUser())
         } catch (e: HttpException) {
             when (e.code()) {
                 408 -> Result.Error(DataError.Network.REQUEST_TIMEOUT)
@@ -73,14 +74,19 @@ class AuthRepositoryImpl @Inject constructor(
 
 }
 
+private fun LoginUserResponse.toUserEntity(email: String, userId: String, firstName: String, lastName: String): UserEntity {
+    return UserEntity(
+        firstName = firstName,
+        lastName = lastName,
+        email = email,
+        phoneNumber = phoneNumber,
+        id = userId)
+}
+
+private fun LoginUserResponse.toUser(): User {
+    return User(firstName = firstName, lastName = lastName, email = email, phoneNumber = phoneNumber, userId = userId, password = null)
+}
+
 private fun User.toUserDTO(): RegisterUserDTO {
-    TODO()
-}
-
-private fun Any.toUserEntity(email: String, userId: Any): UserEntity {
-    TODO()
-}
-
-private fun Any.toUser(): User {
-    TODO("Not yet implemented")
+    return RegisterUserDTO(firstName, lastName, email, phoneNumber, password = password!!)
 }
