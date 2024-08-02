@@ -29,5 +29,6 @@
     <string name="delete">Delete</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
+    <string name="no_unfinished_jobs_text">You have no unfinished jobs. Start a new job.</string>
 
 </resources>

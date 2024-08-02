@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -61,5 +62,5 @@ data class MainState(
     val searchParameters: String? = null,
     val isUserSettingsSelected: Boolean = false,
     val unsubmittedProjects: List<Forms> = listOf(),
-    val date: LocalDateTime = LocalDateTime.now()
+    val date: LocalDate = LocalDate.now()
 )

@@ -1,6 +1,5 @@
 package com.example.dbm.main.presentation
 
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,11 +17,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -31,20 +36,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dbm.R
+import com.example.dbm.main.presentation.objects.Forms
 import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
+import com.example.dbm.presentation.theme.MellowYellow
+import java.text.Normalizer.Form
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun MainScreen (
@@ -95,7 +109,7 @@ fun MainScreen (
                         contentDescription = "search",
                         onClick = { onEvent(MainEvents.OnSearchSelected) }
                     )
-                    Spacer(modifier = Modifier.width(15.dp))
+                    Spacer(modifier = Modifier.width(20.dp))
                     CreateSquareIconButton(
                         icon = ImageVector.vectorResource(id = R.drawable.history), 
                         contentDescription = "history",
@@ -103,24 +117,45 @@ fun MainScreen (
                         )
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Surface(
                 modifier = Modifier
                     .fillMaxSize(),
                 shape = AbsoluteRoundedCornerShape(60.dp, 60.dp, 900.dp, 0.dp)
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top,
-                    modifier = Modifier
-                        .fillMaxHeight(.75f)
-                        .padding(30.dp)
-                ) {
-
+                val unsubmittedProjectsList = (0..state.unsubmittedProjects.size).toList()
+                if (unsubmittedProjectsList.size > 1) {
+                    LazyColumn(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top,
+                        modifier = Modifier
+                            .fillMaxHeight(.75f)
+                            .padding(30.dp)
+                    ) {
+                        items(
+                            items = state.unsubmittedProjects,
+                            key = { item -> item.formId }) { item ->
+                            Box {
+                                DisplayUnfinishedProject(
+                                    address = item.jobAddress,
+                                    dateCreated = item.dateCreated,
+                                    projectId = item.formId
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Row (
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        NoUnfinishedJobsText()
+                    }
                 }
             }
         }
-    },
+        },
         bottomBar = {
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -142,6 +177,52 @@ fun MainScreen (
 }
 
 @Composable
+fun DisplayUnfinishedProject(
+    address: String,
+    dateCreated: LocalDate,
+    projectId: String
+) {
+    Card(
+        colors = CardDefaults.cardColors(MellowYellow),
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.medium)
+            .wrapContentSize()
+            .clickable {
+
+            }
+            .padding(5.dp)
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(8.dp),
+                clip = false
+            )
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
+        ) {
+            Image(painter = painterResource(id = R.drawable.alert), contentDescription = "High Priority")
+            Spacer(modifier = Modifier.width(8.dp))
+            Column {
+                Text(text = address)
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = "Date Created: $dateCreated")
+            }
+        }
+
+    }
+
+}
+
+@Composable
+fun NoUnfinishedJobsText() {
+    Text(text = "No unfinished jobs", color = Color.Black, fontSize = 15.sp)
+}
+
+@Composable
 fun CreateSquareIconButton(
     icon: ImageVector,
     contentDescription: String?,
@@ -149,7 +230,7 @@ fun CreateSquareIconButton(
 ) {
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(15.dp),
         modifier = Modifier.size(100.dp), // Adjust size as needed
         colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray) // Customize the button color if needed
     ) {
@@ -240,43 +321,37 @@ fun IconActionButton(
             fontSize = 30.sp,
             color = Color.White
         )
-        CircleWithInitials(
-            onItemSelected = action,
-            initials = initials,
-            userId = userId
-        )
+        Image(
+            painter = painterResource(id = R.drawable.account_icon), contentDescription = "account")
     }
 
-    @Composable
-    fun CircleWithInitials(
-        onItemSelected: (MainEvents) -> Unit,
-        initials: String,
-        userId: String
-    ) {
-        Surface(
-            shape = CircleShape,
-            color = Color.LightGray,
-            modifier =
-            Modifier
-                .size(40.dp)
-                .clickable {
-                    onItemSelected(MainEvents.OnUserSettingsSelected(userId))
-                },
-        ) {
-            Box(
-                modifier =
-                Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = initials,
-                    fontSize = 16.sp,
-                    lineHeight = 19.sp,
-                    fontWeight = FontWeight.W700,
-                    color = Color.Gray
-                )
-            }
-        }
-    }
 
+@Preview
+@Composable
+fun MainScreenPreview(){
+    val state = MainState(
+        name = "Scott Robinson",
+        email = "scottrobinson4591@gmail.com",
+        initials = "SR",
+        formId = "234322-234563",
+        userId = "sr243523",
+        searchParameters = "none",
+        isUserSettingsSelected = false,
+        unsubmittedProjects = listOf(
+            Forms(
+                formId = "123",
+                dateCreated = LocalDate.now().plusDays(4),
+                createdBy = "Scott Robinson",
+                jobAddress = "3171 Jessica Drive Douglasville, GA 30135"
+            ),
+            Forms(
+                formId = "234",
+                dateCreated = LocalDate.now().plusDays(2),
+                createdBy = "Chase Daily",
+                jobAddress = "32 Wallaby Way Sydney, Australia"
+            )
+        ),
+        date = LocalDate.now()
+    )
+    MainScreen(state = state, onEvent = {})
+}
