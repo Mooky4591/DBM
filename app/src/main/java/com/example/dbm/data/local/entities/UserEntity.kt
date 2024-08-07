@@ -10,5 +10,7 @@ data class UserEntity(
     var firstName: String,
     var lastName: String,
     var email: String,
-    var phoneNumber: String
+    var phoneNumber: String,
+    var companyName: String,
+    var companyAddress: String
 )

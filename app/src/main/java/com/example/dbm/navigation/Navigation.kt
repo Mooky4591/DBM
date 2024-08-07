@@ -4,11 +4,14 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.dbm.job.presentation.JobScreen
+import com.example.dbm.job.presentation.JobViewModel
 import com.example.dbm.login.presentation.LoginEvents
 import com.example.dbm.login.presentation.LoginScreen
 import com.example.dbm.login.presentation.LoginViewModel
@@ -85,17 +88,38 @@ fun Nav() {
                 val mainViewModel = hiltViewModel<MainViewModel>()
                 val state = mainViewModel.state
                 val context = LocalContext.current
+                ObserveAsEvents(mainViewModel.event) { event ->
+                    when (event) {
+                        is MainEvents.StartNewProject -> navController.navigate(Screen.Job)
+                        else -> { mainViewModel.onEvent(event) }
+                    }
+                }
                 MainScreen(
                     state = state,
                     onEvent = { event ->
                         when (event) {
                             is MainEvents.OnSearchSelected -> navController.navigate(Screen.Search)
                             is MainEvents.OnFormsHistorySelected -> navController.navigate(Screen.FormsHistory(event.userId))
-                            is MainEvents.OnUserSettingsSelected -> navController.navigate(Screen.UserSettings(event.userId))
                             is MainEvents.UnsubmittedFormSelected -> navController.navigate(Screen.EditForm(event.formId))
-                            is MainEvents.StartNewProject -> navController.navigate(Screen.NewForm)
+                            is MainEvents.StartNewProject -> navController.navigate(Screen.Job)
+                            is MainEvents.OnBackPress -> navController.navigateUp()
+                            else -> { mainViewModel.onEvent(event) }
                         }
-                        mainViewModel.onEvent(event)
+                    }
+                )
+            }
+            //Job
+            composable<Screen.Job> {
+                val jobViewModel = hiltViewModel<JobViewModel>()
+                val state = jobViewModel.state
+                val context = LocalContext.current
+                JobScreen(
+                    state = state,
+                    onEvents = { event ->
+                        when (event) {
+
+                        }
+                        jobViewModel.onEvent(event)
                     }
                 )
             }

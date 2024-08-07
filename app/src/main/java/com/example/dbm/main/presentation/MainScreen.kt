@@ -21,13 +21,15 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -40,11 +42,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -56,9 +57,7 @@ import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
 import com.example.dbm.presentation.theme.MellowYellow
-import java.text.Normalizer.Form
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Composable
 fun MainScreen (
@@ -92,10 +91,12 @@ fun MainScreen (
                         .padding(top = 5.dp, bottom = 5.dp)
                 ) {
                     CreateTopBar(
-                        action = onEvent,
-                        initials = state.initials ?: "",
+                        backPressed = { onEvent(MainEvents.OnBackPress) },
                         name = state.name ?: "",
-                        userId = state.userId ?: ""
+                        isUserSettingsDropDownExpanded = state.isUserSettingsSelected,
+                        userSettingsPressed = { isUserDropDownExpanded ->
+                            onEvent(MainEvents.OnUserSettingsSelected(isUserDropDownExpanded))
+                        }
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -167,7 +168,7 @@ fun MainScreen (
                     onClick = {
                         onEvent(MainEvents.StartNewProject)
                     },
-                    text = "Start New Job",
+                    text = stringResource(R.string.start_new_job),
                     width = 300.dp,
                     image = R.drawable.plus
                 )
@@ -204,7 +205,10 @@ fun DisplayUnfinishedProject(
                 .fillMaxSize()
                 .padding(10.dp)
         ) {
-            Image(painter = painterResource(id = R.drawable.alert), contentDescription = "High Priority")
+            Image(painter = painterResource(id = R.drawable.alert), contentDescription = stringResource(
+                R.string.high_priority
+            )
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text(text = address)
@@ -219,7 +223,7 @@ fun DisplayUnfinishedProject(
 
 @Composable
 fun NoUnfinishedJobsText() {
-    Text(text = "No unfinished jobs", color = Color.Black, fontSize = 15.sp)
+    Text(text = stringResource(R.string.no_unfinished_jobs), color = Color.Black, fontSize = 15.sp)
 }
 
 @Composable
@@ -301,14 +305,14 @@ fun IconActionButton(
 
     @Composable
     fun CreateTopBar(
-        action: (MainEvents) -> Unit,
-        initials: String,
-        userId: String,
+        backPressed: () -> Unit,
+        userSettingsPressed: (Boolean) -> Unit,
+        isUserSettingsDropDownExpanded: Boolean,
         name: String,
     ) {
         IconButton(
             onClick = {
-                /*TODO*/
+                backPressed()
             }
         ) {
             Image(
@@ -321,9 +325,80 @@ fun IconActionButton(
             fontSize = 30.sp,
             color = Color.White
         )
-        Image(
-            painter = painterResource(id = R.drawable.account_icon), contentDescription = "account")
+        Surface(
+            color = Color.Transparent
+        ) {
+            IconButton(
+                onClick = {
+                    userSettingsPressed(!isUserSettingsDropDownExpanded)
+                }
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.account_icon),
+                    contentDescription = "account"
+                )
+            }
+            CreateDropDownMenu(
+                expanded = isUserSettingsDropDownExpanded,
+                dismiss = {
+                    userSettingsPressed(!isUserSettingsDropDownExpanded)
+                },
+                menuColor = DbmPurple,
+                menuItemColor = Color.LightGray
+            )
+        }
     }
+
+@Composable
+fun CreateDropDownMenu(
+    expanded: Boolean,
+    dismiss: (Boolean) -> Unit,
+    menuColor: Color,
+    menuItemColor: Color
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { dismiss(!expanded) },
+        modifier = Modifier.background(menuColor)
+    ) {
+        Divider(thickness = .5.dp, color = Color.Black)
+        DropdownMenuItem(
+            text = {
+                DropdownMenuItemText(itemTitle = stringResource(R.string.account_settings))
+            },
+            onClick = {
+                /*TODO*/
+            },
+            modifier = Modifier.background(color = menuItemColor)
+        )
+        Divider(thickness = .5.dp, color = Color.Black)
+        DropdownMenuItem(
+            text = {
+                DropdownMenuItemText(itemTitle = stringResource(R.string.contact_us))
+            },
+            onClick = {
+                /*TODO*/
+            },
+            modifier = Modifier.background(color = menuItemColor)
+        )
+        Divider(thickness = .5.dp, color = Color.Black)
+        DropdownMenuItem(
+            text = {
+                DropdownMenuItemText(itemTitle = stringResource(R.string.logout))
+            },
+            onClick = {
+                /*TODO*/
+            },
+            modifier = Modifier.background(color = menuItemColor)
+        )
+        Divider(thickness = .5.dp, color = Color.Black)
+    }
+}
+
+@Composable
+fun DropdownMenuItemText(itemTitle: String) {
+    Text(text = itemTitle, color = Color.Black)
+}
 
 
 @Preview
@@ -332,7 +407,6 @@ fun MainScreenPreview(){
     val state = MainState(
         name = "Scott Robinson",
         email = "scottrobinson4591@gmail.com",
-        initials = "SR",
         formId = "234322-234563",
         userId = "sr243523",
         searchParameters = "none",

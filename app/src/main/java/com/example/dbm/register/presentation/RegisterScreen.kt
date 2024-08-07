@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -60,74 +62,103 @@ fun RegisterScreen(
                 .padding(it.calculateLeftPadding(layoutDirection = LayoutDirection.Ltr))
         ) {
             TopLogo()
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize(),
-                shape = AbsoluteRoundedCornerShape(60.dp, 60.dp, 900.dp, 0.dp)
-            ) {
+            Box (modifier = Modifier.fillMaxSize()) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    shape = AbsoluteRoundedCornerShape(60.dp, 60.dp, 900.dp, 0.dp)
+                ) {}
+                val scrollState = rememberScrollState()
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top,
                     modifier = Modifier
-                        .fillMaxHeight(.75f)
+                        .fillMaxHeight()
                         .padding(30.dp)
+                        .verticalScroll(scrollState)
                 ) {
-                    CreateTextField(
-                        hint = stringResource(R.string.first_name),
-                        onEvent = {
-                            firstname -> onEvent(RegisterEvents.OnFirstNameChanged(firstname))
-                                  },
-                        stringValue = state.firstName ?: ""
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    CreateTextField(
-                        hint = stringResource(R.string.last_name),
-                        onEvent = {
-                                  lastName -> onEvent(RegisterEvents.OnLastNameChanged(lastName))
-                        } ,
-                        stringValue = state.lastName ?: "",
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    CreateTextField(
-                        hint = "Email",
-                        onEvent = {
-                                email -> onEvent(RegisterEvents.OnEmailChanged(email))
-                        } ,
-                        stringValue = state.email ?: "",
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    CreateTextField(
-                        hint = "Phone Number",
-                        onEvent = {
-                                phoneNumber -> onEvent(RegisterEvents.OnPhoneNumberChanged(phoneNumber))
-                        } ,
-                        stringValue = state.phoneNumber ?: "",
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    CreateTextField(
-                        hint = "Password",
-                        onEvent = {
-                                password -> onEvent(RegisterEvents.OnPasswordChanged(password))
-                        } ,
-                        stringValue = state.password ?: "",
-                    )
-                    val registerObject = User(
-                        userId = (state.userId ?: UUID.randomUUID()).toString(),
-                        email = state.email ?: "",
-                        firstName = state.firstName ?: "",
-                        lastName = state.lastName ?: "",
-                        phoneNumber = state.phoneNumber ?: "",
-                        password = state.password
-                    )
-                    Spacer(modifier = Modifier.height(15.dp))
-                    RegisterButton(
-                        onClick = { user -> onEvent(RegisterEvents.OnGetStartedClick(user)) },
-                        user = registerObject)
+                    CreateRegistrationFields(onEvent = { value -> onEvent(value) }, state = state)
                 }
             }
         }
     }
 }
+
+@Composable
+fun CreateRegistrationFields(
+    onEvent: (RegisterEvents) -> Unit,
+    state: RegisterState
+) {
+    CreateTextField(
+        hint = stringResource(R.string.first_name),
+        onEvent = { firstname ->
+            onEvent(RegisterEvents.OnFirstNameChanged(firstname))
+        },
+        stringValue = state.firstName ?: ""
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    CreateTextField(
+        hint = stringResource(R.string.last_name),
+        onEvent = { lastName ->
+            onEvent(RegisterEvents.OnLastNameChanged(lastName))
+        },
+        stringValue = state.lastName ?: "",
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    CreateTextField(
+        hint = stringResource(R.string.email),
+        onEvent = { email ->
+            onEvent(RegisterEvents.OnEmailChanged(email))
+        },
+        stringValue = state.email ?: "",
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    CreateTextField(
+        hint = stringResource(R.string.phone_number),
+        onEvent = { phoneNumber ->
+            onEvent(RegisterEvents.OnPhoneNumberChanged(phoneNumber))
+        },
+        stringValue = state.phoneNumber ?: "",
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    CreateTextField(
+        hint = stringResource(R.string.company_address),
+        onEvent = { address ->
+            onEvent(RegisterEvents.OnCompanyAddressChanged(address))
+        },
+        stringValue = state.companyAddress ?: ""
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    CreateTextField(
+        hint = stringResource(R.string.company_name),
+        onEvent = { name ->
+            onEvent(RegisterEvents.OnCompanyNameChanged(name))
+        },
+        stringValue = state.companyName ?: ""
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    CreateTextField(
+        hint = stringResource(id = R.string.password),
+        onEvent = { password ->
+            onEvent(RegisterEvents.OnPasswordChanged(password))
+        },
+        stringValue = state.password ?: "",
+    )
+    val registerObject = User(
+        userId = null,
+        email = state.email ?: "",
+        firstName = state.firstName ?: "",
+        lastName = state.lastName ?: "",
+        phoneNumber = state.phoneNumber ?: "",
+        password = state.password,
+        companyAddress = state.companyAddress ?: "",
+        companyName = state.companyName ?: ""
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    RegisterButton(
+        onClick = { user -> onEvent(RegisterEvents.OnGetStartedClick(user)) },
+        user = registerObject
+    )}
 
 @Composable
 fun CreateTextField(hint: String, onEvent: (String) -> Unit, stringValue: String) {
@@ -181,7 +212,7 @@ fun RegisterButton(
                 .padding(top = 10.dp, bottom = 10.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "Register", color = Color.White)
+            Text(text = stringResource(R.string.register), color = Color.White)
 
         }
     }

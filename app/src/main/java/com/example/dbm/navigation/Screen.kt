@@ -20,11 +20,11 @@ sealed class Screen {
     data class FormsHistory(val userId: String)
 
     @Serializable
-    data class UserSettings(val userId: String)
+    data object AccountSettings
 
     @Serializable
     data class EditForm(val formId: String)
 
     @Serializable
-    data object NewForm
+    data object Job
 }

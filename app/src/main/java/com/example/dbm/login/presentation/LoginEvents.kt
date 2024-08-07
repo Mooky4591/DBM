@@ -1,6 +1,5 @@
 package com.example.dbm.login.presentation
 
-import com.example.dbm.login.presentation.objects.Login
 import com.example.dbm.presentation.UiText
 
 sealed interface LoginEvents {

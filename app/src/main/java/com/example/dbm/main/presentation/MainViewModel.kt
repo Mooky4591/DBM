@@ -28,7 +28,15 @@ class MainViewModel @Inject constructor(
     val event = eventChannel.receiveAsFlow()
 
     init {
-        setUserInitials()
+        getUserInfo()
+    }
+
+    private fun getUserInfo() {
+        viewModelScope.launch {
+            state = state.copy(name = mainScreenRepo.getUserName(email = userPreferences.getUserEmail()))
+            state = state.copy(email = userPreferences.getUserEmail())
+        }
+
     }
 
     fun onEvent(event: MainEvents) {
@@ -37,18 +45,8 @@ class MainViewModel @Inject constructor(
             is MainEvents.UnsubmittedFormSelected -> TODO()
             is MainEvents.OnFormsHistorySelected -> TODO()
             is MainEvents.OnSearchSelected -> TODO()
-            is MainEvents.OnUserSettingsSelected -> TODO()
-        }
-    }
-    private fun setUserInitials() {
-        val email: String = userPreferences.getUserEmail()
-        viewModelScope.launch {
-            val name: String = mainScreenRepo.getUserName(email)
-            state = state.copy(name = name)
-            state = state.copy(initials = name
-                .split(' ')
-                .mapNotNull { it.firstOrNull()?.toString() }
-                .reduce { acc, s -> acc + s })
+            is MainEvents.OnUserSettingsSelected -> state = state.copy(isUserSettingsSelected = event.isUserDropDownSelected)
+            is MainEvents.OnBackPress -> { /*handled in navigation*/ }
         }
     }
 }
@@ -56,7 +54,6 @@ class MainViewModel @Inject constructor(
 data class MainState(
     val name: String? = null,
     val email: String? = null,
-    val initials: String? = null,
     val formId : String? = null,
     val userId: String? = null,
     val searchParameters: String? = null,

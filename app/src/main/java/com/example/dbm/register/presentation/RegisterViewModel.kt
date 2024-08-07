@@ -43,6 +43,8 @@ class RegisterViewModel @Inject constructor(
             is RegisterEvents.RegistrationSuccessful -> {}
             is RegisterEvents.RegistrationFailed -> {}
             is RegisterEvents.OnPhoneNumberChanged -> state = state.copy(phoneNumber = event.phoneNumber)
+            is RegisterEvents.OnCompanyAddressChanged -> state = state.copy(companyAddress = event.address)
+            is RegisterEvents.OnCompanyNameChanged -> state = state.copy(companyName = event.companyName)
         }
     }
 
@@ -91,6 +93,8 @@ data class RegisterState(
     var lastName: String? = null,
     var phoneNumber: String? = null,
     var userId: String? = null,
+    var companyAddress: String? = null,
+    var companyName: String? = null,
     var isEmailValid: Boolean = false,
     var isPasswordVisible: Boolean = false,
     var isRegistrationSuccessful: Boolean = false,
