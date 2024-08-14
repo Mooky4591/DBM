@@ -25,4 +25,12 @@ class UserPreferencesImpl(
     override fun getUserEmail(): String {
         return sharedPref.getString("email", "") ?: ""
     }
+
+    override fun addUserId(id: String) {
+        return sharedPref.edit().putString("userId", id).apply()
+    }
+
+    override fun getUserId(): String {
+        return sharedPref.getString("userId", "") ?: ""
+    }
 }

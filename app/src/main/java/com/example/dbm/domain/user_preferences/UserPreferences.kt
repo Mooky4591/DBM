@@ -6,4 +6,6 @@ interface UserPreferences {
     fun getUserFullName(): String
     fun addUserEmail(email: String)
     fun getUserEmail(): String
+    fun addUserId(id: String)
+    fun getUserId(): String
 }

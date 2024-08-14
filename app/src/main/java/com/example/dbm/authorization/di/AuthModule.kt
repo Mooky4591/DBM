@@ -32,8 +32,9 @@ object AuthModule {
     fun provideAuthRepository(
         userDao: UserDao,
         api: DBMApi,
+        userPreferences: UserPreferences
     ): AuthRepository {
-        return AuthRepositoryImpl(userDao, api)
+        return AuthRepositoryImpl(userDao, api, userPreferences)
     }
 
     @Provides

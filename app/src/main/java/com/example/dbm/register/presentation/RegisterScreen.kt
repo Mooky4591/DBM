@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.dbm.R
@@ -37,7 +38,6 @@ import com.example.dbm.login.presentation.TopLogo
 import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
-import java.util.UUID
 
 @Composable
 fun RegisterScreen(
@@ -162,6 +162,7 @@ fun CreateRegistrationFields(
 
 @Composable
 fun CreateTextField(hint: String, onEvent: (String) -> Unit, stringValue: String) {
+
     TextField(
         value = stringValue,
         onValueChange = { onEvent(it) },
@@ -177,6 +178,30 @@ fun CreateTextField(hint: String, onEvent: (String) -> Unit, stringValue: String
             unfocusedIndicatorColor = Color.Transparent,
         )
     )
+}
+
+
+@Preview
+@Composable
+fun RegisterScreenPreview() {
+    val state = RegisterState(
+        email = "scott@email.com",
+        password = "password",
+        firstName = "Scott",
+        lastName = "Robinson",
+        phoneNumber = "4706675061",
+        userId = "userID234",
+        companyAddress = "Company Address",
+        companyName = "Company name",
+        isEmailValid = true,
+        isPasswordVisible = true,
+        isRegistrationSuccessful = true,
+        isLoginSuccessful = false,
+        isLoading = false,
+        passwordInvalidErrorMessage = null,
+        networkErrorMessage = null,
+    )
+    RegisterScreen(state = state, onEvent = {})
 }
 
 @Composable

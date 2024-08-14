@@ -1,7 +1,7 @@
 package com.example.dbm.data.remote.dtos
 
 
-data class RegisterUserDTO(
+data class RegisterUserDTO (
     val firstName: String,
     val lastName: String,
     val email: String,

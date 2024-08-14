@@ -13,7 +13,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,6 +46,9 @@ class MainViewModel @Inject constructor(
             is MainEvents.OnSearchSelected -> TODO()
             is MainEvents.OnUserSettingsSelected -> state = state.copy(isUserSettingsSelected = event.isUserDropDownSelected)
             is MainEvents.OnBackPress -> { /*handled in navigation*/ }
+            is MainEvents.OnAccountSettingsPressed -> { /*handled in navigation*/ }
+            is MainEvents.OnContactUsPressed -> { /*handled in navigation*/ }
+            is MainEvents.OnLogoutPressed -> { /*handled in navigation*/ }
         }
     }
 }

@@ -43,7 +43,15 @@
     <string name="change_phone_number">Change Phone Number</string>
     <string name="change_email">Change Email</string>
     <string name="change_name">Change Name</string>
+    <string name="change_company_name">Change Company Name</string>
+    <string name="change_company_address">Change Company Address</string>
     <string name="account_settings">Account Settings</string>
     <string name="contact_us">Contact Us</string>
+    <string name="required_info_text">Please provide all required information. The project will not be able to be initiated until all necessary information is received. Please provide all project pictures or additional project details.</string>
+    <string name="check_all_that_apply">Check All That Apply</string>
+    <string name="scope_of_work">Scope of Work</string>
+    <string name="save">Save</string>
+    <string name="submit_project">Submit Project</string>
+    <string name="change_password_title">Change Password</string>
 
 </resources>

@@ -5,13 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.dbm.data.local.daos.UserDao
-import com.example.dbm.data.local.entities.FormQuestionsEntity
-import com.example.dbm.data.local.entities.FormResponsesEntity
-import com.example.dbm.data.local.entities.FormsEntity
+import com.example.dbm.data.local.entities.JobEntity
 import com.example.dbm.data.local.entities.UserEntity
 
 @Database(
-    entities = [UserEntity::class, FormsEntity::class, FormResponsesEntity::class, FormQuestionsEntity::class],
+    entities = [UserEntity::class, JobEntity::class],
     version = 1,
     exportSchema = false
 )

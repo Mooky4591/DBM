@@ -7,6 +7,7 @@ import com.example.dbm.data.local.entities.UserEntity
 import com.example.dbm.data.remote.DBMApi
 import com.example.dbm.data.remote.dtos.RegisterUserDTO
 import com.example.dbm.data.remote.response_objects.LoginUserResponse
+import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.DataError
 import com.example.dbm.error_handling.domain.Result
 import com.example.dbm.login.presentation.objects.Login
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val retrofit: DBMApi,
+    private val userPref: UserPreferences
 ): AuthRepository {
 
     override fun isEmailValid(email: String): Boolean {
@@ -29,6 +31,8 @@ class AuthRepositoryImpl @Inject constructor(
             val loginUser = retrofit.loginUser(login)
             val userEntity = loginUser.toUserEntity(loginUser.email, loginUser.userId, loginUser.firstName, loginUser.lastName, loginUser.companyAddress, loginUser.companyName)
             userDao.insertUser(userEntity)
+            userPref.addUserFullName(loginUser.firstName + " " + loginUser.lastName)
+            userPref.addUserId(loginUser.userId)
             Result.Success(loginUser.toUser())
         } catch (e: HttpException) {
             when (e.code()) {

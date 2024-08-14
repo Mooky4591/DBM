@@ -17,14 +17,20 @@ sealed class Screen {
     data object Search
 
     @Serializable
-    data class FormsHistory(val userId: String)
+    data class JobsHistory(val userId: String)
 
     @Serializable
     data object AccountSettings
 
     @Serializable
-    data class EditForm(val formId: String)
+    data class EditJob(val jobId: String)
+
+    @Serializable
+    data object ContactUs
 
     @Serializable
     data object Job
+
+    @Serializable
+    data class EditText(val text: String?, val title: String)
 }

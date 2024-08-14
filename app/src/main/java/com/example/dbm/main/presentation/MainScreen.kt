@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -42,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,7 +54,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dbm.R
+import com.example.dbm.job.presentation.JobEvents
 import com.example.dbm.main.presentation.objects.Forms
+import com.example.dbm.navigation.Screen
 import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
@@ -84,7 +88,7 @@ fun MainScreen (
         ) {
             Column {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceAround,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -96,7 +100,10 @@ fun MainScreen (
                         isUserSettingsDropDownExpanded = state.isUserSettingsSelected,
                         userSettingsPressed = { isUserDropDownExpanded ->
                             onEvent(MainEvents.OnUserSettingsSelected(isUserDropDownExpanded))
-                        }
+                        },
+                        shouldShowSettingsButton = true,
+                        shouldShowSaveButton = false,
+                        action = { onEvent(MainEvents.OnAccountSettingsPressed) }
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -306,53 +313,109 @@ fun IconActionButton(
     @Composable
     fun CreateTopBar(
         backPressed: () -> Unit,
-        userSettingsPressed: (Boolean) -> Unit,
-        isUserSettingsDropDownExpanded: Boolean,
+        action: (Any) -> Unit = {},
+        userSettingsPressed: (Boolean) -> Unit = {},
+        isUserSettingsDropDownExpanded: Boolean?,
         name: String,
+        shouldShowSettingsButton: Boolean,
+        shouldShowSaveButton: Boolean
     ) {
-        IconButton(
-            onClick = {
-                backPressed()
-            }
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.arrow_back),
-                contentDescription = "navigate back"
-            )
-        }
+        CreateBackButton(backPressed)
         Text(
             text = name,
             fontSize = 30.sp,
             color = Color.White
         )
-        Surface(
-            color = Color.Transparent
-        ) {
-            IconButton(
-                onClick = {
-                    userSettingsPressed(!isUserSettingsDropDownExpanded)
-                }
+        if (shouldShowSettingsButton) {
+            Surface(
+                color = Color.Transparent
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.account_icon),
-                    contentDescription = "account"
+                IconButton(
+                    onClick = {
+                        userSettingsPressed(!isUserSettingsDropDownExpanded!!)
+                    }
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.account_icon),
+                        contentDescription = "account",
+                    )
+                }
+                CreateDropDownMenu(
+                    expanded = isUserSettingsDropDownExpanded ?: false,
+                    dismiss = {
+                        userSettingsPressed(!isUserSettingsDropDownExpanded!!)
+                    },
+                    menuColor = DbmPurple,
+                    menuItemColor = Color.LightGray,
+                    action = { action(MainEvents.OnAccountSettingsPressed) },
                 )
             }
-            CreateDropDownMenu(
-                expanded = isUserSettingsDropDownExpanded,
-                dismiss = {
-                    userSettingsPressed(!isUserSettingsDropDownExpanded)
-                },
-                menuColor = DbmPurple,
-                menuItemColor = Color.LightGray
+        } else if (shouldShowSaveButton){
+            CreateSaveButton()
+        }
+    }
+
+@Composable
+fun CreateBackButton(
+    backPressed: () -> Unit,
+    ) {
+    IconButton(
+        onClick = {
+            backPressed()
+        }
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.arrow_back),
+            contentDescription = "navigate back"
+        )
+    }
+}
+
+@Composable
+fun CreateSaveButton() {
+    Surface (
+        color = Color.Transparent,
+        modifier = Modifier.wrapContentSize()
+    ) {
+        TextButton(
+            onClick = { /*TODO*/ }
+        ) {
+            Text(
+                text = stringResource(id = R.string.save),
+                color = Color.White
             )
         }
     }
+}
+
+@Composable
+fun CreateUserSettingsIcon(
+    userSettingsPressed: (Boolean) -> Unit,
+    isUserSettingsDropDownExpanded: Boolean,
+) {
+    Surface (
+        color = Color.Transparent,
+        modifier = Modifier.wrapContentSize()
+    ) {
+        IconButton(
+            onClick = {
+                userSettingsPressed(!isUserSettingsDropDownExpanded)
+            }
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.account_icon),
+                contentDescription = "account",
+                colorFilter = ColorFilter.tint(Color.Transparent)
+            )
+        }
+    }
+}
 
 @Composable
 fun CreateDropDownMenu(
     expanded: Boolean,
     dismiss: (Boolean) -> Unit,
+    action: (MainEvents) -> Unit,
     menuColor: Color,
     menuItemColor: Color
 ) {
@@ -367,7 +430,7 @@ fun CreateDropDownMenu(
                 DropdownMenuItemText(itemTitle = stringResource(R.string.account_settings))
             },
             onClick = {
-                /*TODO*/
+                action(MainEvents.OnAccountSettingsPressed)
             },
             modifier = Modifier.background(color = menuItemColor)
         )
@@ -377,7 +440,7 @@ fun CreateDropDownMenu(
                 DropdownMenuItemText(itemTitle = stringResource(R.string.contact_us))
             },
             onClick = {
-                /*TODO*/
+                action(MainEvents.OnContactUsPressed)
             },
             modifier = Modifier.background(color = menuItemColor)
         )
@@ -387,7 +450,7 @@ fun CreateDropDownMenu(
                 DropdownMenuItemText(itemTitle = stringResource(R.string.logout))
             },
             onClick = {
-                /*TODO*/
+                action(MainEvents.OnLogoutPressed)
             },
             modifier = Modifier.background(color = menuItemColor)
         )
