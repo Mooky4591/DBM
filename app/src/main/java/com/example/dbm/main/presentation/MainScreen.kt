@@ -55,8 +55,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dbm.R
 import com.example.dbm.job.presentation.JobEvents
+import com.example.dbm.main.presentation.objects.Answer
 import com.example.dbm.main.presentation.objects.Forms
+import com.example.dbm.main.presentation.objects.Question
 import com.example.dbm.navigation.Screen
+import com.example.dbm.presentation.edit_text.presentation.EditTextEvent
 import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
@@ -103,7 +106,20 @@ fun MainScreen (
                         },
                         shouldShowSettingsButton = true,
                         shouldShowSaveButton = false,
-                        action = { onEvent(MainEvents.OnAccountSettingsPressed) }
+                        action = { event ->
+                            when (event) {
+                                MainEvents.OnAccountSettingsPressed -> {
+                                    onEvent(MainEvents.OnAccountSettingsPressed)
+                                }
+                                MainEvents.OnLogoutPressed -> {
+                                    onEvent(MainEvents.OnLogoutPressed)
+                                }
+                                MainEvents.OnContactUsPressed -> {
+                                    onEvent(MainEvents.OnContactUsPressed)
+                                }
+                                else -> {}
+                            }
+                        },
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -314,6 +330,7 @@ fun IconActionButton(
     fun CreateTopBar(
         backPressed: () -> Unit,
         action: (Any) -> Unit = {},
+        save: () -> Unit = {},
         userSettingsPressed: (Boolean) -> Unit = {},
         isUserSettingsDropDownExpanded: Boolean?,
         name: String,
@@ -347,11 +364,24 @@ fun IconActionButton(
                     },
                     menuColor = DbmPurple,
                     menuItemColor = Color.LightGray,
-                    action = { action(MainEvents.OnAccountSettingsPressed) },
+                    action = { event ->
+                        when (event) {
+                            MainEvents.OnAccountSettingsPressed -> {
+                                action(MainEvents.OnAccountSettingsPressed)
+                            }
+                            MainEvents.OnLogoutPressed -> {
+                                action(MainEvents.OnLogoutPressed)
+                            }
+                            MainEvents.OnContactUsPressed -> {
+                                action(MainEvents.OnContactUsPressed)
+                            }
+                            else -> {}
+                        }
+                    }
                 )
             }
         } else if (shouldShowSaveButton){
-            CreateSaveButton()
+            CreateSaveButton(onEvent = save)
         }
     }
 
@@ -372,13 +402,15 @@ fun CreateBackButton(
 }
 
 @Composable
-fun CreateSaveButton() {
+fun CreateSaveButton(
+    onEvent: () -> Unit
+) {
     Surface (
         color = Color.Transparent,
         modifier = Modifier.wrapContentSize()
     ) {
         TextButton(
-            onClick = { /*TODO*/ }
+            onClick = { onEvent() }
         ) {
             Text(
                 text = stringResource(id = R.string.save),
@@ -425,35 +457,41 @@ fun CreateDropDownMenu(
         modifier = Modifier.background(menuColor)
     ) {
         Divider(thickness = .5.dp, color = Color.Black)
-        DropdownMenuItem(
-            text = {
-                DropdownMenuItemText(itemTitle = stringResource(R.string.account_settings))
-            },
-            onClick = {
-                action(MainEvents.OnAccountSettingsPressed)
-            },
-            modifier = Modifier.background(color = menuItemColor)
-        )
+        Box {
+            DropdownMenuItem(
+                text = {
+                    DropdownMenuItemText(itemTitle = stringResource(R.string.account_settings))
+                },
+                onClick = {
+                    action(MainEvents.OnAccountSettingsPressed)
+                },
+                modifier = Modifier.background(color = menuItemColor)
+            )
+        }
         Divider(thickness = .5.dp, color = Color.Black)
-        DropdownMenuItem(
-            text = {
-                DropdownMenuItemText(itemTitle = stringResource(R.string.contact_us))
-            },
-            onClick = {
-                action(MainEvents.OnContactUsPressed)
-            },
-            modifier = Modifier.background(color = menuItemColor)
-        )
+        Box {
+            DropdownMenuItem(
+                text = {
+                    DropdownMenuItemText(itemTitle = stringResource(R.string.contact_us))
+                },
+                onClick = {
+                    action(MainEvents.OnContactUsPressed)
+                },
+                modifier = Modifier.background(color = menuItemColor)
+            )
+        }
         Divider(thickness = .5.dp, color = Color.Black)
-        DropdownMenuItem(
-            text = {
-                DropdownMenuItemText(itemTitle = stringResource(R.string.logout))
-            },
-            onClick = {
-                action(MainEvents.OnLogoutPressed)
-            },
-            modifier = Modifier.background(color = menuItemColor)
-        )
+        Box {
+            DropdownMenuItem(
+                text = {
+                    DropdownMenuItemText(itemTitle = stringResource(R.string.logout))
+                },
+                onClick = {
+                    action(MainEvents.OnLogoutPressed)
+                },
+                modifier = Modifier.background(color = menuItemColor)
+            )
+        }
         Divider(thickness = .5.dp, color = Color.Black)
     }
 }
@@ -467,6 +505,13 @@ fun DropdownMenuItemText(itemTitle: String) {
 @Preview
 @Composable
 fun MainScreenPreview(){
+    val question = Question (
+        questionId = "234",
+        questionText = "Question"
+    )
+    val answer = Answer (
+        answerText = "Answer"
+    )
     val state = MainState(
         name = "Scott Robinson",
         email = "scottrobinson4591@gmail.com",
@@ -479,13 +524,19 @@ fun MainScreenPreview(){
                 formId = "123",
                 dateCreated = LocalDate.now().plusDays(4),
                 createdBy = "Scott Robinson",
-                jobAddress = "3171 Jessica Drive Douglasville, GA 30135"
+                jobAddress = "3171 Jessica Drive Douglasville, GA 30135",
+                companyName = "DBM Solar",
+                questionsAndAnswers = mapOf(question to answer),
+                submitted = false
             ),
             Forms(
                 formId = "234",
                 dateCreated = LocalDate.now().plusDays(2),
                 createdBy = "Chase Daily",
-                jobAddress = "32 Wallaby Way Sydney, Australia"
+                jobAddress = "32 Wallaby Way Sydney, Australia",
+                companyName = "DBM Solar",
+                questionsAndAnswers = mapOf(question to answer),
+                submitted = false
             )
         ),
         date = LocalDate.now()

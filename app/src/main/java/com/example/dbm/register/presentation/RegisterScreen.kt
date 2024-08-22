@@ -150,13 +150,12 @@ fun CreateRegistrationFields(
         firstName = state.firstName ?: "",
         lastName = state.lastName ?: "",
         phoneNumber = state.phoneNumber ?: "",
-        password = state.password,
         companyAddress = state.companyAddress ?: "",
         companyName = state.companyName ?: ""
     )
     Spacer(modifier = Modifier.height(15.dp))
     RegisterButton(
-        onClick = { user -> onEvent(RegisterEvents.OnGetStartedClick(user)) },
+        onClick = { user -> onEvent(RegisterEvents.OnGetStartedClick(user, password = state.password ?: "")) },
         user = registerObject
     )}
 

@@ -1,5 +1,6 @@
 package com.example.dbm.navigation
 
+import com.example.dbm.presentation.edit_text.enum.EditTextType
 import kotlinx.serialization.Serializable
 
 sealed class Screen {

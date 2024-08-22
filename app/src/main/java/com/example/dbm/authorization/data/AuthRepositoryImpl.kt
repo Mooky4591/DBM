@@ -32,7 +32,6 @@ class AuthRepositoryImpl @Inject constructor(
             val userEntity = loginUser.toUserEntity(loginUser.email, loginUser.userId, loginUser.firstName, loginUser.lastName, loginUser.companyAddress, loginUser.companyName)
             userDao.insertUser(userEntity)
             userPref.addUserFullName(loginUser.firstName + " " + loginUser.lastName)
-            userPref.addUserId(loginUser.userId)
             Result.Success(loginUser.toUser())
         } catch (e: HttpException) {
             when (e.code()) {
@@ -52,8 +51,8 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun registerUser(user: User): Result<User, DataError.Network> {
-        val userDto = user.toUserDTO()
+    override suspend fun registerUser(user: User, password: String): Result<User, DataError.Network> {
+        val userDto = user.toUserDTO(password)
         return try {
             retrofit.registerUser(userDto)
             Result.Success(user)
@@ -95,11 +94,17 @@ private fun LoginUserResponse.toUser(): User {
         email = email,
         phoneNumber = phoneNumber,
         userId = userId,
-        password = null,
         companyName = companyName,
         companyAddress = companyAddress)
 }
 
-private fun User.toUserDTO(): RegisterUserDTO {
-    return RegisterUserDTO(firstName = firstName, lastName = lastName, email = email, phoneNumber = phoneNumber, password = password!!, companyName = companyName, companyAddress = companyAddress)
+private fun User.toUserDTO(password: String): RegisterUserDTO {
+    return RegisterUserDTO(
+        firstName = firstName,
+        lastName = lastName,
+        email = email,
+        phoneNumber = phoneNumber,
+        password = password,
+        companyName = companyName,
+        companyAddress = companyAddress)
 }

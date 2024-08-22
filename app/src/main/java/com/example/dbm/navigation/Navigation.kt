@@ -22,9 +22,10 @@ import com.example.dbm.login.presentation.LoginViewModel
 import com.example.dbm.main.presentation.MainEvents
 import com.example.dbm.main.presentation.MainScreen
 import com.example.dbm.main.presentation.MainViewModel
-import com.example.dbm.presentation.EditTextEvent
-import com.example.dbm.presentation.EditTextScreen
-import com.example.dbm.presentation.EditTextViewModel
+import com.example.dbm.presentation.edit_text.enum.EditTextType
+import com.example.dbm.presentation.edit_text.presentation.EditTextEvent
+import com.example.dbm.presentation.edit_text.presentation.EditTextScreen
+import com.example.dbm.presentation.edit_text.presentation.EditTextViewModel
 import com.example.dbm.register.presentation.RegisterEvents
 import com.example.dbm.register.presentation.RegisterScreen
 import com.example.dbm.register.presentation.RegisterViewModel
@@ -97,6 +98,7 @@ fun Nav() {
                 val context = LocalContext.current
                 ObserveAsEvents(mainViewModel.event) { event ->
                     when (event) {
+                        is MainEvents.OnLogoutPressed -> navController.navigate(Screen.Login)
                         else -> {}
                     }
                 }
@@ -140,18 +142,13 @@ fun Nav() {
                     state = state,
                     onEvent = { event ->
                         when (event) {
-                          is AccountSettingEvent.OnChangePasswordClicked -> {navController.navigate(Screen.EditText(null,
-                              context.getString(
-                                  R.string.change_password
-                              )
-                            )
-                          )
-                          }
-                          is AccountSettingEvent.OnCompanyNameChangeClicked -> {navController.navigate(Screen.EditText(event.companyName, context.getString(R.string.change_company_name)))}
-                          is AccountSettingEvent.OnEmailChangeClicked -> {navController.navigate(Screen.EditText(event.email, context.getString(R.string.change_email)))}
-                          is AccountSettingEvent.OnCompanyAddressChangeClicked -> {navController.navigate(Screen.EditText(event.companyAddress, context.getString(R.string.change_company_address)))}
-                          is AccountSettingEvent.OnPhoneNumberChangeClicked -> {navController.navigate(Screen.EditText(event.number, context.getString(R.string.change_phone_number)))}
-                          is AccountSettingEvent.OnNameChangeClicked -> {navController.navigate(Screen.EditText(event.name, context.getString(R.string.change_name)))}
+                          is AccountSettingEvent.OnChangePasswordClicked -> {navController.navigate(Screen.EditText(null, context.getString(R.string.change_password)))}
+                          is AccountSettingEvent.OnCompanyNameChangeClicked -> {navController.navigate(Screen.EditText(event.companyName, EditTextType.CHANGE_COMPANY_NAME.name))}
+                          is AccountSettingEvent.OnEmailChangeClicked -> {navController.navigate(Screen.EditText(event.email, EditTextType.CHANGE_EMAIL.name))}
+                          is AccountSettingEvent.OnCompanyAddressChangeClicked -> {navController.navigate(Screen.EditText(event.companyAddress, EditTextType.CHANGE_COMPANY_ADDRESS.name))}
+                          is AccountSettingEvent.OnPhoneNumberChangeClicked -> {navController.navigate(Screen.EditText(event.number, EditTextType.CHANGE_PHONE_NUMBER.name))}
+                          is AccountSettingEvent.OnNameChangeClicked -> {navController.navigate(Screen.EditText(event.name, EditTextType.CHANGE_NAME.name))}
+                          is AccountSettingEvent.OnBackPress -> navController.navigateUp()
                         }
                         settingsViewModel.onEvent(event)
                     }
@@ -165,16 +162,22 @@ fun Nav() {
                 val context = LocalContext.current
                 val args = it.toRoute<Screen.EditText>()
                 LaunchedEffect(args) {
-                    editTextViewModel.setTitleText(args.title)
+                    editTextViewModel.setTitleText(args.title, context)
                     editTextViewModel.setText(args.text ?: "")
+                }
+                ObserveAsEvents(editTextViewModel.event) { event ->
+                    when (event) {
+                        is EditTextEvent.SaveSuccessful -> navController.navigate(Screen.AccountSettings)
+                        else -> {}
+                    }
                 }
                 EditTextScreen(
                     state = state,
                     onEvent = { event ->
                         when (event){
                             EditTextEvent.OnBackPress -> navController.navigateUp()
-                            EditTextEvent.OnSavePressed -> TODO()
-                            is EditTextEvent.OnTextChanged -> editTextViewModel.onEvent(event)
+                            EditTextEvent.SaveSuccessful -> navController.navigate(Screen.AccountSettings)
+                            else -> editTextViewModel.onEvent(event)
                         }
                         editTextViewModel.onEvent(event)
                     }

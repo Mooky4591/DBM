@@ -74,6 +74,8 @@ class LoginViewModel @Inject constructor(
                     is Result.Success -> {
                         state = state.copy(isLoggingIn = false)
                         userPrefs.addUserEmail(login.email)
+                        val id: String = loginResponse.data.userId ?: ""
+                        userPrefs.addUserId(id)
                         eventChannel.send(LoginEvents.LoginSuccess(login.email))
                     }
 

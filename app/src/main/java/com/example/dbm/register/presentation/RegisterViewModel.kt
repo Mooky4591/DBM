@@ -36,7 +36,7 @@ class RegisterViewModel @Inject constructor(
             )
 
             is RegisterEvents.OnPasswordChanged -> state = state.copy(password = event.password)
-            is RegisterEvents.OnGetStartedClick -> register(event.login)
+            is RegisterEvents.OnGetStartedClick -> register(event.login, event.password)
             is RegisterEvents.OnTogglePasswordVisibility -> state =
                 state.copy(isPasswordVisible = event.isPasswordVisible)
 
@@ -48,10 +48,10 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun register(user: User) {
-        if (validatePassword(user.password ?: "")) {
+    private fun register(user: User, password: String) {
+        if (validatePassword(password)) {
             viewModelScope.launch {
-                when (val result = registerUseCase.registerUser(user)) {
+                when (val result = registerUseCase.registerUser(user, password)) {
                     is Result.Error -> {
                         state = state.copy(isRegistrationSuccessful = false)
                         state = state.copy(

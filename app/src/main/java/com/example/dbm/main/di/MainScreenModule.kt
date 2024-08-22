@@ -1,6 +1,7 @@
 package com.example.dbm.main.di
 
 import com.example.dbm.data.local.daos.UserDao
+import com.example.dbm.data.local.database.DbmDatabase
 import com.example.dbm.main.data.MainScreenRepositoryImpl
 import com.example.dbm.main.domain.MainScreenRepository
 import dagger.Module
@@ -16,7 +17,7 @@ object MainScreenModule {
     @Provides
     @Singleton
     fun provideMainScreenRepository(
-        userDao: UserDao
+        userDao: UserDao,
     ): MainScreenRepository {
         return MainScreenRepositoryImpl(userDao)
     }

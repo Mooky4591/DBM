@@ -12,7 +12,7 @@ interface RegisterEvents {
     data class OnCompanyAddressChanged(val address: String) : RegisterEvents
     data class OnCompanyNameChanged(val companyName: String): RegisterEvents
     data class OnTogglePasswordVisibility(val isPasswordVisible: Boolean) : RegisterEvents
-    data class OnGetStartedClick(val login: User) : RegisterEvents
+    data class OnGetStartedClick(val login: User, val password: String) : RegisterEvents
     data object RegistrationSuccessful : RegisterEvents
     data class RegistrationFailed(val errorMessage: UiText) : RegisterEvents
 }

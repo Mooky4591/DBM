@@ -12,8 +12,8 @@ class RegisterUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val passwordValidator: PasswordValidator
 ) {
-    suspend fun registerUser(user: User): Result<User, DataError.Network> {
-        return authRepository.registerUser(user)
+    suspend fun registerUser(user: User, password: String): Result<User, DataError.Network> {
+        return authRepository.registerUser(user, password)
     }
 
     fun isEmailValid(email: String): Boolean {

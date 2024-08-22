@@ -78,7 +78,6 @@ fun AccountSettingsScreen(
                         .fillMaxSize(),
                     shape = AbsoluteRoundedCornerShape(60.dp, 60.dp, 900.dp, 0.dp)
                 ) {
-                    Box {
                         val scrollState = rememberScrollState()
                         Column(
                             modifier = Modifier
@@ -93,7 +92,7 @@ fun AccountSettingsScreen(
                             Spacer(modifier = Modifier.height(20.dp))
                             Text(text = stringResource(id = R.string.change_email), fontSize = 10.sp, color = Color.Gray)
                             TextFieldWithNavigation(
-                                hint = stringResource(id = R.string.change_email),
+                                hint = state.email ?: "",
                                 onClick = { email ->
                                     onEvent(AccountSettingEvent.OnEmailChangeClicked(email.toString()))
                                 },
@@ -114,13 +113,12 @@ fun AccountSettingsScreen(
                             //change name field
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(text = stringResource(id = R.string.change_name), fontSize = 10.sp, color = Color.Gray)
-
                             TextFieldWithNavigation(
                                 hint = stringResource(id = R.string.change_name),
                                 onClick = { name ->
                                     onEvent(AccountSettingEvent.OnNameChangeClicked(name.toString()))
                                 },
-                                stringValue = state.email ?: ""
+                                stringValue = state.name ?: ""
                             )
 
                             //change password field
@@ -158,7 +156,6 @@ fun AccountSettingsScreen(
                         }
                     }
                 }
-            }
 
         }
     )

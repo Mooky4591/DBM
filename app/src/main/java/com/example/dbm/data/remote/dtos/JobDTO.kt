@@ -6,11 +6,15 @@ data class JobDTO (
     val companyName: String,
     val createdBy: String,
     val dateCreated: String,
-    val questionsAndAnswers: List<QuestionAnswer>
+    val questionsAndAnswers: Map<QuestionDTO, AnswerDTO>
 )
 
-data class QuestionAnswer (
+data class QuestionDTO (
     val questionId: String,
     val questionText: String,
-    val answerText: String
+)
+
+data class AnswerDTO (
+    val answerText: String,
+    val pictureUrl: String? = null
 )
