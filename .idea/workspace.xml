@@ -9,20 +9,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4984dd18-322f-4733-82a6-42dd122db7f2" name="Changes" comment="Upgraded gradle version and room version. Fixed the register user api">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/error_handling/domain/EmailValidator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.6/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.6/checksums/md5-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/di/AuthModule.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/di/AuthModule.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/error_handling/domain/asUiText.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/error_handling/domain/asUiText.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/navigation/Navigation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/navigation/Navigation.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/domain/use_case/RegisterUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/domain/use_case/RegisterUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/presentation/RegisterScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/presentation/RegisterScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/presentation/RegisterViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/presentation/RegisterViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+    <list default="true" id="4984dd18-322f-4733-82a6-42dd122db7f2" name="Changes" comment="Added email validation to the registration screen">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -396,7 +384,15 @@
       <option name="project" value="LOCAL" />
       <updated>1727285926288</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Added email validation to the registration screen">
+      <option name="closed" value="true" />
+      <created>1727295808974</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1727295808974</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -405,7 +401,8 @@
     <MESSAGE value="added company info to the user registration. Also started creating the New/Edit Job screen" />
     <MESSAGE value="working on getting th APi calls working again" />
     <MESSAGE value="Upgraded gradle version and room version. Fixed the register user api" />
-    <option name="LAST_COMMIT_MESSAGE" value="Upgraded gradle version and room version. Fixed the register user api" />
+    <MESSAGE value="Added email validation to the registration screen" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added email validation to the registration screen" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
