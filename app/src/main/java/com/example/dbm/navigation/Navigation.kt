@@ -80,10 +80,9 @@ fun Nav() {
 
                         is RegisterEvents.RegistrationFailed -> Toast.makeText(
                             context,
-                            "Registration Failed: " + event.errorMessage,
+                            "Registration Failed: " + event.errorMessage.asString(context),
                             Toast.LENGTH_SHORT
                         ).show()
-
                     }
                 }
                 RegisterScreen(

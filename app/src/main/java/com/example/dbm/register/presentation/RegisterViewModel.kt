@@ -12,6 +12,7 @@ import com.example.dbm.presentation.UiText
 import com.example.dbm.register.domain.use_case.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -32,7 +33,7 @@ class RegisterViewModel @Inject constructor(
             is RegisterEvents.OnLastNameChanged -> state = state.copy(lastName = event.name)
             is RegisterEvents.OnEmailChanged -> state = state.copy(
                 email = event.email,
-                isEmailValid = registerUseCase.isEmailValid(event.email)
+                isEmailValid = validateEmail(event.email)
             )
 
             is RegisterEvents.OnPasswordChanged -> state = state.copy(password = event.password)
@@ -49,22 +50,50 @@ class RegisterViewModel @Inject constructor(
     }
 
     private fun register(user: User, password: String) {
-        if (validatePassword(password)) {
-            viewModelScope.launch {
-                when (val result = registerUseCase.registerUser(user, password)) {
-                    is Result.Error -> {
-                        state = state.copy(isRegistrationSuccessful = false)
-                        state = state.copy(
-                            networkErrorMessage = result.error.asUiText()
-                        )
-                        eventChannel.send(RegisterEvents.RegistrationFailed(state.networkErrorMessage!!))
-                    }
+        viewModelScope.launch {
+            when (validatePassword(password)) {
+                true -> {
+                    when (val result = registerUseCase.registerUser(user, password)) {
+                        is Result.Error -> {
+                            state = state.copy(isRegistrationSuccessful = false)
+                            state = state.copy(
+                                networkErrorMessage = result.error.asUiText()
+                            )
+                            eventChannel.send(RegisterEvents.RegistrationFailed(state.networkErrorMessage!!))
+                        }
 
-                    is Result.Success -> {
-                        state = state.copy(isRegistrationSuccessful = true)
-                        eventChannel.send(RegisterEvents.RegistrationSuccessful)
+                        is Result.Success -> {
+                            when (validateEmail(email = user.email)) {
+                                true -> {
+                                    state = state.copy(isRegistrationSuccessful = true)
+                                    eventChannel.send(RegisterEvents.RegistrationSuccessful)
+                                }
+                                false -> {
+                                    state = state.copy(isRegistrationSuccessful = false)
+                                    eventChannel.send(RegisterEvents.RegistrationFailed(state.invalidEmail!!))
+                                }
+                            }
+
+                        }
                     }
                 }
+                false -> {
+                    eventChannel.send(RegisterEvents.RegistrationFailed(state.passwordInvalidErrorMessage!!))
+                }
+            }
+        }
+    }
+
+    private fun validateEmail(email: String) : Boolean {
+        return when(val result = registerUseCase.isEmailValid(email)) {
+            is Result.Error -> {
+                state = state.copy(
+                    invalidEmail = result.error.asUiText()
+                )
+                false
+            }
+            is Result.Success -> {
+                true
             }
         }
     }
@@ -72,8 +101,9 @@ class RegisterViewModel @Inject constructor(
     private fun validatePassword(password: String): Boolean {
         return when (val result = registerUseCase.isPasswordValid(password)) {
             is Result.Error -> {
+                val error = result.error.asUiText()
                 state = state.copy(
-                    passwordInvalidErrorMessage = result.error.asUiText()
+                    passwordInvalidErrorMessage = error
                 )
                 false
             }
@@ -101,5 +131,6 @@ data class RegisterState(
     var isLoginSuccessful: Boolean = false,
     var isLoading: Boolean = false,
     var passwordInvalidErrorMessage: UiText? = null,
+    var invalidEmail: UiText? = null,
     var networkErrorMessage: UiText? = null
 )

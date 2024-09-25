@@ -23,6 +23,38 @@ fun PasswordValidator.PasswordError.asUiText(): UiText {
     }
 }
 
+fun EmailValidator.EmailError.asUiText(): UiText {
+    return when (this) {
+        EmailValidator.EmailError.MUST_CONTAIN_ONE_AT_SYMBOL -> UiText.StringResource(
+            R.string.email_must_contain_one
+        )
+        EmailValidator.EmailError.CANNOT_START_WITH_AT_SYMBOL -> UiText.StringResource(
+            R.string.EMAIL_CANNOT_START_WITH_AT_SYMBOL
+        )
+        EmailValidator.EmailError.CANNOT_END_WITH_AT_SYMBOL -> UiText.StringResource(
+            R.string.email_cannot_end_with_at_symbol
+        )
+        EmailValidator.EmailError.CANNOT_START_WITH_DOT -> UiText.StringResource(
+            R.string.email_cannot_start_with_dot
+        )
+        EmailValidator.EmailError.CANNOT_END_WITH_DOT -> UiText.StringResource(
+            R.string.email_cannot_end_with_dot
+        )
+        EmailValidator.EmailError.INVALID_LOCAL_PART -> UiText.StringResource(
+            R.string.invalid_characters
+        )
+        EmailValidator.EmailError.CONSECUTIVE_DOTS -> UiText.StringResource(
+            R.string.email_addresses_cannot_contain_consecutive_dots
+        )
+        EmailValidator.EmailError.TOO_LONG -> UiText.StringResource(
+            R.string.email_too_long
+        )
+        EmailValidator.EmailError.INVALID_TLD -> UiText.StringResource(
+            R.string.invalid_tld
+        )
+    }
+}
+
 fun DataError.Local.asUiText(): UiText {
     return when (this) {
         DataError.Local.DISK_FULL -> UiText.StringResource(

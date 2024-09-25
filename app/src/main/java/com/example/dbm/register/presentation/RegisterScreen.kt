@@ -196,9 +196,7 @@ fun RegisterScreenPreview() {
         isPasswordVisible = true,
         isRegistrationSuccessful = true,
         isLoginSuccessful = false,
-        isLoading = false,
-        passwordInvalidErrorMessage = null,
-        networkErrorMessage = null,
+        isLoading = false
     )
     RegisterScreen(state = state, onEvent = {})
 }

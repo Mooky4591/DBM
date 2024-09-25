@@ -2,6 +2,7 @@ package com.example.dbm.authorization.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.room.Room
 import com.example.dbm.authorization.data.AuthRepositoryImpl
 import com.example.dbm.authorization.domain.AuthRepository
@@ -10,6 +11,7 @@ import com.example.dbm.data.local.daos.UserDao
 import com.example.dbm.data.local.database.DbmDatabase
 import com.example.dbm.data.remote.DBMApi
 import com.example.dbm.domain.user_preferences.UserPreferences
+import com.example.dbm.error_handling.domain.EmailValidator
 import com.example.dbm.error_handling.domain.PasswordValidator
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -84,6 +86,12 @@ object AuthModule {
     @Singleton
     fun providePasswordValidator(): PasswordValidator {
         return PasswordValidator()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEmailValidator(): EmailValidator {
+        return EmailValidator()
     }
 
     @Provides
