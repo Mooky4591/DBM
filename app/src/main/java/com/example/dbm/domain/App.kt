@@ -1,4 +1,4 @@
-package com.example.dbm
+package com.example.dbm.domain
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

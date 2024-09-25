@@ -1,4 +1,4 @@
-package com.example.dbm
+package com.example.dbm.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

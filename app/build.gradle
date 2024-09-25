@@ -113,7 +113,7 @@ dependencies {
 
     // Jetpack Compose
     implementation libs.androidx.ui.v164
-    implementation 'androidx.compose.material:material:1.6.4'
+    implementation libs.androidx.material.v172
 
     // Splash Screen
     implementation libs.androidx.core.splashscreen
