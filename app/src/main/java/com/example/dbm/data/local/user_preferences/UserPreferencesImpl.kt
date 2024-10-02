@@ -2,7 +2,6 @@ package com.example.dbm.data.local.user_preferences
 
 import android.content.SharedPreferences
 import com.example.dbm.domain.user_preferences.UserPreferences
-import com.example.dbm.login.presentation.objects.User
 
 class UserPreferencesImpl(
     private val sharedPref: SharedPreferences
@@ -43,6 +42,14 @@ class UserPreferencesImpl(
         return sharedPref.getString("email", "") ?: ""
     }
 
+    override fun addUserPhoneNumber(number: String) {
+        return sharedPref.edit().putString("number", number).apply()
+    }
+
+    override fun getUserPhoneNumber(): String {
+        return sharedPref.getString("number", "") ?: ""
+    }
+
     override fun addUserId(id: String) {
         return sharedPref.edit().putString("userId", id).apply()
     }
@@ -50,5 +57,21 @@ class UserPreferencesImpl(
     override fun getUserId(): String {
         val id: String = sharedPref.getString("userId", "") ?: ""
         return id
+    }
+
+    override fun addCompanyName(name: String) {
+        return sharedPref.edit().putString("companyName", name).apply()
+    }
+
+    override fun getCompanyName(): String {
+        return sharedPref.getString("companyName", "") ?: ""
+    }
+
+    override fun addCompanyAddress(address: String) {
+        return sharedPref.edit().putString("companyAddress", address).apply()
+    }
+
+    override fun getCompanyAddress(): String {
+        return sharedPref.getString("companyAddress", "") ?: ""
     }
 }

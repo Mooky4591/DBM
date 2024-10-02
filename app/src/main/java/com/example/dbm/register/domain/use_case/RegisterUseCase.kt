@@ -1,6 +1,5 @@
 package com.example.dbm.register.domain.use_case
 
-import android.util.Patterns
 import com.example.dbm.authorization.domain.AuthRepository
 import com.example.dbm.error_handling.domain.DataError
 import com.example.dbm.error_handling.domain.EmailValidator
@@ -24,5 +23,9 @@ class RegisterUseCase @Inject constructor(
 
     fun isPasswordValid(password: String): Result<*, PasswordValidator.PasswordError> {
         return passwordValidator.validatePassword(password)
+    }
+
+    suspend fun updatePassword(email: String, password: String): Result<Boolean, DataError.Network> {
+        return authRepository.updatePassword(email, password)
     }
 }

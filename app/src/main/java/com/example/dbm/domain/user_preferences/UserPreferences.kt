@@ -1,7 +1,5 @@
 package com.example.dbm.domain.user_preferences
 
-import com.example.dbm.login.presentation.objects.User
-
 interface UserPreferences {
     fun clearPreference()
     fun addUserFullName(fullName: String)
@@ -12,6 +10,12 @@ interface UserPreferences {
     fun getUserLastName(): String
     fun addUserEmail(email: String)
     fun getUserEmail(): String
+    fun addUserPhoneNumber(number: String)
+    fun getUserPhoneNumber(): String
     fun addUserId(id: String)
     fun getUserId(): String
+    fun addCompanyName(name: String)
+    fun getCompanyName(): String
+    fun addCompanyAddress(address: String)
+    fun getCompanyAddress(): String
 }

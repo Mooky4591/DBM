@@ -10,4 +10,5 @@ interface AuthRepository {
     fun isEmailValid(email: String): Boolean
     suspend fun loginUser(login: Login): Result<User, DataError.Network>
     suspend fun registerUser(user: User, password: String): Result<User, DataError.Network>
+    suspend fun updatePassword(email: String, password: String): Result<Boolean, DataError.Network>
 }

@@ -8,4 +8,5 @@ interface EditTextRepository {
     suspend fun updateUserToDB(user: User): Result<User, DataError.Local>
     suspend fun updateUserToApi(user: User): Result<Boolean, DataError.Network>
     suspend fun getUser(userId: String): Result<User, DataError.Local>
+    suspend fun updatePasswordToApi(email: String, password: String): Result<Boolean, DataError.Network>
 }

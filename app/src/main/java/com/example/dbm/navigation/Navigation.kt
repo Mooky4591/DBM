@@ -30,8 +30,6 @@ import com.example.dbm.register.presentation.RegisterEvents
 import com.example.dbm.register.presentation.RegisterScreen
 import com.example.dbm.register.presentation.RegisterViewModel
 
-private const val s = "Change Password"
-
 @Composable
 fun Nav() {
     val navController = rememberNavController()
@@ -121,6 +119,11 @@ fun Nav() {
             composable<Screen.Job> {
                 val jobViewModel = hiltViewModel<JobViewModel>()
                 val state = jobViewModel.state
+                val questionStateList = jobViewModel.questionStates
+                val otherQuestionState = jobViewModel.otherQuestionState
+                val scopeOfWorkCheckBoxStateList = jobViewModel.scopeOfWorkCheckBoxStates
+                val singleLineCheckBoxStateList = jobViewModel.singlePageCheckBoxState
+                val siteInfoStateList = jobViewModel.siteInfoQuestionStateList
                 val context = LocalContext.current
                 JobScreen(
                     state = state,
@@ -129,7 +132,12 @@ fun Nav() {
                             is JobEvents.OnBackPress -> navController.navigateUp()
                         }
                         jobViewModel.onEvent(event)
-                    }
+                    },
+                    otherQuestionState = otherQuestionState,
+                    scopeOfWorkCheckBoxState = scopeOfWorkCheckBoxStateList,
+                    singleLineCheckBoxState = singleLineCheckBoxStateList,
+                    siteInfoStateList = siteInfoStateList,
+                    questionStateList = questionStateList
                 )
             }
             //Account Settings
@@ -147,7 +155,7 @@ fun Nav() {
                           is AccountSettingEvent.OnCompanyAddressChangeClicked -> {navController.navigate(Screen.EditText(event.companyAddress, EditTextType.CHANGE_COMPANY_ADDRESS.name))}
                           is AccountSettingEvent.OnPhoneNumberChangeClicked -> {navController.navigate(Screen.EditText(event.number, EditTextType.CHANGE_PHONE_NUMBER.name))}
                           is AccountSettingEvent.OnNameChangeClicked -> {navController.navigate(Screen.EditText(event.name, EditTextType.CHANGE_NAME.name))}
-                          is AccountSettingEvent.OnBackPress -> navController.navigateUp()
+                          is AccountSettingEvent.OnBackPress -> navController.navigate(Screen.Main)
                         }
                         settingsViewModel.onEvent(event)
                     }
@@ -167,6 +175,11 @@ fun Nav() {
                 ObserveAsEvents(editTextViewModel.event) { event ->
                     when (event) {
                         is EditTextEvent.SaveSuccessful -> navController.navigate(Screen.AccountSettings)
+                        is EditTextEvent.InvalidEntry -> Toast.makeText(
+                            context,
+                            "Invalid Entry: " + event.errorMessage.asString(context),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         else -> {}
                     }
                 }
@@ -175,7 +188,6 @@ fun Nav() {
                     onEvent = { event ->
                         when (event){
                             EditTextEvent.OnBackPress -> navController.navigateUp()
-                            EditTextEvent.SaveSuccessful -> navController.navigate(Screen.AccountSettings)
                             else -> editTextViewModel.onEvent(event)
                         }
                         editTextViewModel.onEvent(event)

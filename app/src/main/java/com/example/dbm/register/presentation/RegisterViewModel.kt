@@ -12,10 +12,8 @@ import com.example.dbm.presentation.UiText
 import com.example.dbm.register.domain.use_case.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,12 +33,11 @@ class RegisterViewModel @Inject constructor(
                 email = event.email,
                 isEmailValid = validateEmail(event.email)
             )
-
-            is RegisterEvents.OnPasswordChanged -> state = state.copy(password = event.password)
+            is RegisterEvents.OnPasswordChanged -> {
+                state = state.copy(password = event.password)
+            }
             is RegisterEvents.OnGetStartedClick -> register(event.login, event.password)
-            is RegisterEvents.OnTogglePasswordVisibility -> state =
-                state.copy(isPasswordVisible = event.isPasswordVisible)
-
+            is RegisterEvents.OnTogglePasswordVisibility -> state = state.copy(isPasswordVisible = event.isPasswordVisible)
             is RegisterEvents.RegistrationSuccessful -> {}
             is RegisterEvents.RegistrationFailed -> {}
             is RegisterEvents.OnPhoneNumberChanged -> state = state.copy(phoneNumber = event.phoneNumber)
@@ -53,31 +50,28 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             when (validatePassword(password)) {
                 true -> {
-                    when (val result = registerUseCase.registerUser(user, password)) {
-                        is Result.Error -> {
-                            state = state.copy(isRegistrationSuccessful = false)
-                            state = state.copy(
-                                networkErrorMessage = result.error.asUiText()
-                            )
-                            eventChannel.send(RegisterEvents.RegistrationFailed(state.networkErrorMessage!!))
-                        }
-
-                        is Result.Success -> {
-                            when (validateEmail(email = user.email)) {
-                                true -> {
+                    when (validateEmail(user.email)) {
+                        true -> {
+                            when (val result = registerUseCase.registerUser(user, password)) {
+                                is Result.Success -> {
                                     state = state.copy(isRegistrationSuccessful = true)
                                     eventChannel.send(RegisterEvents.RegistrationSuccessful)
                                 }
-                                false -> {
+                                is Result.Error -> {
                                     state = state.copy(isRegistrationSuccessful = false)
-                                    eventChannel.send(RegisterEvents.RegistrationFailed(state.invalidEmail!!))
+                                    state = state.copy(networkErrorMessage = result.error.asUiText())
+                                    eventChannel.send(RegisterEvents.RegistrationFailed(state.networkErrorMessage!!))
                                 }
                             }
-
+                        }
+                        false -> {
+                            state = state.copy(isRegistrationSuccessful = false)
+                            eventChannel.send(RegisterEvents.RegistrationFailed(state.invalidEmail!!))
                         }
                     }
                 }
                 false -> {
+                    state = state.copy(isRegistrationSuccessful = false)
                     eventChannel.send(RegisterEvents.RegistrationFailed(state.passwordInvalidErrorMessage!!))
                 }
             }

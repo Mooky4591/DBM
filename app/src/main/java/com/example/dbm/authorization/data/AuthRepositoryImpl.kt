@@ -31,7 +31,7 @@ class AuthRepositoryImpl @Inject constructor(
             val loginUser = retrofit.loginUser(login)
             val userEntity = loginUser.toUserEntity(loginUser.email, loginUser.userId, loginUser.firstName, loginUser.lastName, loginUser.companyAddress, loginUser.companyName)
             userDao.insertUser(userEntity)
-            userPref.addUserFullName(loginUser.firstName + " " + loginUser.lastName)
+            addUserInfoToUserPrefs(loginUser)
             Result.Success(loginUser.toUser())
         } catch (e: HttpException) {
             when (e.code()) {
@@ -49,6 +49,13 @@ class AuthRepositoryImpl @Inject constructor(
                 else -> Result.Error(DataError.Network.UNKNOWN)
             }
         }
+    }
+
+    private fun addUserInfoToUserPrefs(loginUser: LoginUserResponse) {
+        userPref.addUserFullName(loginUser.firstName + " " + loginUser.lastName)
+        userPref.addCompanyName(loginUser.companyName)
+        userPref.addCompanyAddress(loginUser.companyAddress)
+        userPref.addUserPhoneNumber(loginUser.phoneNumber)
     }
 
     override suspend fun registerUser(user: User, password: String): Result<User, DataError.Network> {
@@ -74,9 +81,35 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updatePassword(
+        email: String,
+        password: String
+    ): Result<Boolean, DataError.Network> {
+        return try {
+            retrofit.updateUserPassword(email, password)
+            Result.Success(true)
+        } catch (e: HttpException) {
+            when (e.code()) {
+                408 -> Result.Error(DataError.Network.REQUEST_TIMEOUT)
+                409 -> Result.Error(DataError.Network.INCORRECT_PASSWORD_OR_EMAIL)
+                429 -> Result.Error(DataError.Network.TOO_MANY_REQUESTS)
+                413 -> Result.Error(DataError.Network.PAYLOAD_TOO_LARGE)
+                500 -> Result.Error(DataError.Network.SERVER_ERROR)
+                400 -> Result.Error(DataError.Network.SERIALIZATION)
+                else -> Result.Error(DataError.Network.UNKNOWN)
+            }
+        }
+    }
+
 }
 
-private fun LoginUserResponse.toUserEntity(email: String, userId: String, firstName: String, lastName: String, companyAddress: String, companyName: String): UserEntity {
+private fun LoginUserResponse.toUserEntity(
+    email: String,
+    userId: String,
+    firstName: String,
+    lastName: String,
+    companyAddress: String,
+    companyName: String): UserEntity {
     return UserEntity(
         firstName = firstName,
         lastName = lastName,

@@ -11,9 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,6 +35,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dbm.R
+import com.example.dbm.job.constants.QuestionIds
 import com.example.dbm.login.presentation.ActionButton
 import com.example.dbm.main.presentation.CreateTopBar
 
@@ -37,7 +43,12 @@ import com.example.dbm.main.presentation.CreateTopBar
 @Composable
 fun JobScreen (
     state: JobState,
-    onEvents: (JobEvents) -> Unit
+    onEvents: (JobEvents) -> Unit,
+    otherQuestionState: QuestionState,
+    questionStateList: List<QuestionState>,
+    scopeOfWorkCheckBoxState: List<CheckBoxState>,
+    singleLineCheckBoxState: List<CheckBoxState>,
+    siteInfoStateList: List<QuestionState>
 ) {
     Scaffold (
         content = {
@@ -68,9 +79,7 @@ fun JobScreen (
                             backPressed = { onEvents(JobEvents.OnBackPress) },
                             name = state.name ?: "",
                             isUserSettingsDropDownExpanded = state.isUserSettingsSelected,
-                            userSettingsPressed = { isUserDropDownExpanded ->
-                                onEvents(JobEvents.OnUserSettingsSelected(isUserDropDownExpanded))
-                            },
+                            userSettingsPressed = {},
                             shouldShowSettingsButton = false,
                             shouldShowSaveButton = true,
                         )
@@ -79,7 +88,6 @@ fun JobScreen (
                     Surface(
                         modifier = Modifier
                             .fillMaxSize(),
-                        shape = AbsoluteRoundedCornerShape(60.dp, 60.dp, 900.dp, 0.dp)
                     ) {
                         val scrollState = rememberScrollState()
                         Column(
@@ -91,11 +99,81 @@ fun JobScreen (
                                 .verticalScroll(scrollState)
                         ) {
                             JobFormTitle()
+                            val subTextList = mutableListOf("Licensed Stamps and Letters", "License Stamps", "Does Not Include Engineering Stamps")
+                            CreateCheckListGroup(
+                                action = {
+                                         scopeOfWorkString, questionIds, questionTxt, isChecked, index ->
+                                            onEvents(
+                                                JobEvents.OnCheckMarkSelected(
+                                                    response = scopeOfWorkString,
+                                                    questionIds = questionIds,
+                                                    questionTxt = questionTxt,
+                                                    isChecked = isChecked,
+                                                    index = index)
+                                            )
+                                },
+                                buttonList = scopeOfWorkCheckBoxState.toMutableList(),
+                                subTextList = subTextList,
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "For single pages:", fontWeight = Bold)
+                            CreateCheckListGroup(
+                                action = {
+                                        scopeOfWorkString, questionIds, questionTxt, isChecked, index ->
+                                    onEvents(
+                                        JobEvents.OnCheckMarkSelected(
+                                            response = scopeOfWorkString,
+                                            questionIds = questionIds,
+                                            questionTxt = questionTxt,
+                                            isChecked = isChecked,
+                                            index = index
+                                        )
+                                    )
+                                },
+                                buttonList = singleLineCheckBoxState.toMutableList(),
+                                subTextList = null,
+                            )
+                            CreateOtherSection(
+                                action = {
+                                        description, questionId, questionTxt ->
+                                    onEvents(
+                                        JobEvents.OnQuestionAnswered(
+                                            response = description,
+                                            questionId = questionId,
+                                            questionTxt = questionTxt
+                                        )
+                                    )
+                                },
+                                otherQuestionState = otherQuestionState
+                            )
+                            ProjectDetails(
+                                onEvents = {
+                                        response, questionId, questionTxt ->
+                                    onEvents(
+                                        JobEvents.OnQuestionAnswered(
+                                            response = response,
+                                            questionId = questionId,
+                                            questionTxt = questionTxt
+                                        )
+                                    )
+                                },
+                                stateList = questionStateList.toMutableList()
+                            )
+                            SiteInformation(
+                                onEvents = {
+                                    response, questionId, questionTxt ->
+                                onEvents(
+                                    JobEvents.OnQuestionAnswered(
+                                        response = response,
+                                        questionId = questionId,
+                                        questionTxt = questionTxt
+                                    )
+                                )
+                            },
+                                stateList = siteInfoStateList.toMutableList()
+                            )
                             /*
-                            ScopeOfWorkQuestions()
-                            SinglePagesQuestions()
-                            ProjectDetails()
-                            SiteInformation()
                             ElectricalBoxMainServicePanelPictures()
                             StructuralDetailAndMeasurementPictures()
                             RoofDetailAndObstaclesPictures()
@@ -123,6 +201,22 @@ fun JobScreen (
 }
 
 @Composable
+fun CreateOtherSection(
+    action: (String, QuestionIds, String) -> Unit,
+    otherQuestionState: QuestionState
+) {
+
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(text = "Other: ", fontWeight = Bold, fontSize = 15.sp)
+    Spacer(modifier = Modifier.height(5.dp))
+    CreateTextFieldForJobScreen(
+        hint = "Please provide a detailed description of the services you are requesting",
+        onEvent = { text -> action(text, otherQuestionState.questionId!!, text) },
+        response = otherQuestionState.response ?: ""
+    )
+}
+
+@Composable
 fun RoofDetailAndObstaclesPictures() {
     TODO("Not yet implemented")
 }
@@ -138,23 +232,90 @@ fun ElectricalBoxMainServicePanelPictures() {
 }
 
 @Composable
-fun SiteInformation() {
-    TODO("Not yet implemented")
+fun SiteInformation(
+    onEvents: (String, QuestionIds, String) -> Unit,
+    stateList: MutableList<QuestionState>
+) {
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(text = "Site Information: ", fontWeight = Bold, fontSize = 15.sp)
+    Spacer(modifier = Modifier.height(5.dp))
+
+    stateList.forEach { questionState ->
+        CreateTextFieldForJobScreen(
+            hint = questionState.questionTxt ?: "",
+            onEvent = { text ->
+                onEvents(text, questionState.questionId!!, questionState.questionTxt.toString())
+                      },
+            response = questionState.response ?: ""
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+    }
 }
 
 @Composable
-fun ProjectDetails() {
-    TODO("Not yet implemented")
+fun ProjectDetails(
+    onEvents: (String, QuestionIds, String) -> Unit,
+    stateList: MutableList<QuestionState>
+) {
+
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(text = "Project Details:", fontWeight = Bold)
+    Spacer(modifier = Modifier.height(5.dp))
+    stateList.forEach { questionState ->
+        CreateTextFieldForJobScreen(
+            hint = questionState.questionTxt ?: "",
+            onEvent = { text ->
+                onEvents(text, questionState.questionId!!, questionState.questionTxt.toString())
+                      },
+            response = questionState.response ?: "",
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+    }
 }
 
 @Composable
-fun SinglePagesQuestions() {
-    TODO("Not yet implemented")
-}
+fun CreateCheckListGroup(
+    action: (String, QuestionIds, String, Boolean, Int) -> Unit,
+    buttonList: MutableList<CheckBoxState>,
+    subTextList: List<String>?,
+) {
 
-@Composable
-fun ScopeOfWorkQuestions() {
-    TODO("Not yet implemented")
+    Spacer(modifier = Modifier.height(5.dp))
+    buttonList.forEachIndexed { index, item ->
+        Column(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(start = 20.dp, end = 20.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(start = 20.dp, end = 20.dp)
+                    .fillMaxWidth()
+            ) {
+                Column {
+                    Text(text = item.text)
+                    if (subTextList?.get(index) != null) {
+                        Text(text = subTextList[index], fontSize = 10.sp)
+                    }
+                }
+                Checkbox(
+                    checked = item.isChecked,
+                    onCheckedChange = { isChecked ->
+                        buttonList[index] = item.copy(
+                            isChecked = isChecked,
+                            questionid = item.questionid
+                        )
+                      action(item.text, item.questionid, item.text, isChecked, index)
+                    }
+                )
+            }
+            Divider()
+        }
+        Spacer(modifier = Modifier.height(2.dp))
+    }
 }
 
 @Composable
@@ -184,5 +345,79 @@ fun JobScreenPreview(){
         email = "scottrobinson4591@gmail.com",
         isUserSettingsSelected = false,
     )
-    JobScreen(state = state, onEvents = {})
+    val _questionStates = mutableListOf(
+        QuestionState(questionId = QuestionIds.PROJECT_NAME, questionTxt = "Project/Customer Name", response = null),
+        QuestionState(questionId = QuestionIds.PROJECT_ADDRESS, questionTxt = "Project Address", response = null),
+        QuestionState(questionId = QuestionIds.SYSTEM_SIZE, questionTxt = "System Size", response = null),
+        QuestionState(questionId = QuestionIds.MAKE_MODEL_PANEL, questionTxt = "Make and Model of Panel", response = null),
+        QuestionState(questionId = QuestionIds.RACKING_SYSTEM, questionTxt = "Racking System", response = null),
+        QuestionState(questionId = QuestionIds.SUBMISSION_DATE, questionTxt = "Submission Date", response = null),
+    )
+
+    val otherQuestionState = QuestionState(
+        questionId = QuestionIds.OTHER,
+        questionTxt = stringResource(id = R.string.required_info_text),
+        response = null
+    )
+
+    val checkBoxStateList = mutableListOf(
+        CheckBoxState(isChecked = false, text = "Structural Engineering", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Electrical Engineering", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Full Permitting Packet", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
+    )
+
+    val singleLineCheckBoxList = mutableListOf(
+        CheckBoxState(isChecked = false, text = "Single Line Electrical", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Three Line Electrical", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Site Plan/Layouts", questionid = QuestionIds.STRUCTURAL_ENGINEERING)
+    )
+
+    val siteInfoList = mutableListOf(
+        QuestionState(questionId = QuestionIds.ROOF_PITCH, questionTxt = "Roof Pitch", response = null),
+        QuestionState(questionId = QuestionIds.ROOFING_MATERIAL, questionTxt = "Roofing Material", response = null),
+        QuestionState(questionId = QuestionIds.RAFTER_SIZE_SPACING, questionTxt = "Rafter/Truss Size and Spacing", response = null),
+        QuestionState(questionId = QuestionIds.MAIN_SERVICE_PANEL_LOCATION, questionTxt = "Location of the Main Service Panel", response = null),
+        QuestionState(questionId = QuestionIds.MAIN_BREAKER_SIZE, questionTxt = "Size of the Main Breaker:", response = null),
+        QuestionState(questionId = QuestionIds.MAIN_BUS_RATING, questionTxt = "Rating of the Main Bus", response = null),
+        QuestionState(questionId = QuestionIds.PROPOSED_INVERTER_LOCATION, questionTxt = "Proposed Location of the Inverter", response = null),
+        QuestionState(questionId = QuestionIds.PROPOSED_INTERCONNECTION_METHOD, questionTxt = "Proposed Interconnection Method", response = null),
+        QuestionState(questionId = QuestionIds.UTILITY_METER_LOCATION, questionTxt = "Location of Utility Meter", response = null),
+        QuestionState(questionId = QuestionIds.LAYOUT_INFORMATION, questionTxt = "Layout Information", response = null),
+        QuestionState(questionId = QuestionIds.ADDITIONAL_DETAILS, questionTxt = "Additional Details", response = null)
+    )
+
+    JobScreen(state = state,
+        onEvents = {},
+        otherQuestionState = otherQuestionState,
+        scopeOfWorkCheckBoxState = checkBoxStateList,
+        singleLineCheckBoxState = singleLineCheckBoxList,
+        siteInfoStateList = siteInfoList,
+        questionStateList = _questionStates
+    )
+}
+
+@Composable
+fun CreateTextFieldForJobScreen(
+    hint: String,
+    onEvent: (String) -> Unit,
+    response: String,
+) {
+
+    TextField(
+        value = response,
+        onValueChange = {
+            onEvent(it)
+                        },
+        placeholder = {
+            Text(text = hint, color = Color.Gray)
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = AbsoluteRoundedCornerShape(15.dp, 15.dp, 15.dp, 15.dp),
+        colors = TextFieldDefaults.textFieldColors(
+            textColor = Color.Gray,
+            disabledTextColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        )
+    )
 }

@@ -4,15 +4,15 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dbm.R
-import com.example.dbm.data.local.daos.UserDao
 import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.Result
+import com.example.dbm.error_handling.domain.asUiText
 import com.example.dbm.login.presentation.objects.User
 import com.example.dbm.presentation.edit_text.domain.EditTextRepository
+import com.example.dbm.presentation.edit_text.domain.ValidateUserInfoUseCase
 import com.example.dbm.presentation.edit_text.enum.EditTextType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -24,6 +24,7 @@ import javax.inject.Inject
 class EditTextViewModel @Inject constructor(
     private val userPreferences: UserPreferences,
     private val editTextRepo: EditTextRepository,
+    private val validatorUseCase: ValidateUserInfoUseCase
 ) : ViewModel() {
     var state by mutableStateOf(EditTextState())
         private set
@@ -64,6 +65,8 @@ class EditTextViewModel @Inject constructor(
             is EditTextEvent.OnTextChanged -> {
                 state = state.copy(text = event.text) }
             EditTextEvent.SaveSuccessful -> {} //handled in navigation
+            is EditTextEvent.InvalidEntry -> {} //handled in navigation
+            EditTextEvent.ValidEntry -> {} //handled in navigation
         }
     }
 
@@ -105,26 +108,67 @@ class EditTextViewModel @Inject constructor(
         when(state.type) {
             EditTextType.CHANGE_PHONE_NUMBER -> {
                 state = state.copy(phoneNumber = state.text)
+                saveUser()
             }
             EditTextType.CHANGE_COMPANY_NAME -> {
                 state = state.copy(companyName = state.text)
+                saveUser()
             }
             EditTextType.CHANGE_COMPANY_ADDRESS -> {
                 state = state.copy(companyAddress = state.text)
+                saveUser()
             }
             EditTextType.CHANGE_EMAIL -> {
-                state = state.copy(email = state.text)
+                viewModelScope.launch {
+                    when (val result = validatorUseCase.isEmailValid(state.text ?: "")) {
+                        is Result.Error -> {
+                            eventChannel.send(EditTextEvent.InvalidEntry(result.error.asUiText()))
+                        }
+
+                        is Result.Success -> {
+                            state = state.copy(email = state.text)
+                            saveUser()
+                        }
+                    }
+                }
             }
             EditTextType.CHANGE_NAME -> {
                 state = state.copy(name = state.text)
                 splitFullName(state.text ?: "")
+                saveUser()
             }
             EditTextType.CHANGE_PASSWORD -> {
+                viewModelScope.launch {
+                    when (val result = validatorUseCase.isPasswordValid(state.text ?: "")) {
+                        is Result.Error -> {
+                            eventChannel.send(EditTextEvent.InvalidEntry(result.error.asUiText()))
+                        }
+                        is Result.Success -> {
+                            eventChannel.send(EditTextEvent.ValidEntry)
+                            savePassword()
+                        }
+                    }
+                }
             }
-
-            null -> TODO()
+            else -> {}
         }
 
+    }
+
+    private fun savePassword() {
+        viewModelScope.launch {
+            when(val result = editTextRepo.updatePasswordToApi(state.email ?: "",state.text ?: "")) {
+                is Result.Error -> {
+                    eventChannel.send(EditTextEvent.InvalidEntry(result.error.asUiText()))
+                }
+                is Result.Success -> {
+                    eventChannel.send(EditTextEvent.SaveSuccessful)
+                }
+            }
+        }
+    }
+
+    private fun saveUser() {
         state = state.copy(isLoggingIn = true)
 
         val newUser = User(
@@ -158,6 +202,7 @@ class EditTextViewModel @Inject constructor(
             }
         }
     }
+
     private fun splitFullName(fullName: String) {
         // Split the full name on the first space
         val parts = fullName.split(" ", limit = 2)

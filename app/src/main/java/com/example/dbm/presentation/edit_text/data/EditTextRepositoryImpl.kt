@@ -62,6 +62,23 @@ class EditTextRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updatePasswordToApi(email: String, password: String): Result<Boolean, DataError.Network> {
+        return try {
+            retrofit.updateUserPassword(email, password)
+            Result.Success(true)
+        }
+        catch (e: retrofit2.HttpException) {
+            when(e.code()) {
+                408 -> Result.Error(DataError.Network.REQUEST_TIMEOUT)
+                429 -> Result.Error(DataError.Network.TOO_MANY_REQUESTS)
+                413 -> Result.Error(DataError.Network.PAYLOAD_TOO_LARGE)
+                500 -> Result.Error(DataError.Network.SERVER_ERROR)
+                400 -> Result.Error(DataError.Network.SERIALIZATION)
+                else ->Result.Error(DataError.Network.UNKNOWN)
+            }
+        }
+    }
+
     private fun User.toUserEntity(): UserEntity {
         return UserEntity(
             id = userId ?: "",

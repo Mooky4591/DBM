@@ -62,5 +62,17 @@
     <string name="email_addresses_cannot_contain_consecutive_dots">Email addresses cannot contain consecutive dots.</string>
     <string name="email_too_long">The email address is too long. Please shorten it to be under 64 characters before \'@\' and under 255 characters after \'@\'.</string>
     <string name="invalid_tld">Please use a valid domain ending, such as \'.com\' or \'.net\'.</string>
+    <string name="structural_engineering">Structural Engineering</string>
+    <string name="electrical_engineering">Electrical Engineering</string>
+    <string name="full_permitting_packet">Full Permitting Packet</string>
+    <string name="single_line_electrical">Single Line Electrical</string>
+    <string name="three_line_electrical">Three Line Electrical</string>
+    <string name="site_plan_layouts">Site Plan/Layouts</string>
+    <string name="project_customer_name">Project/Customer Name:</string>
+    <string name="project_address">Project Address:</string>
+    <string name="system_size">System Size:</string>
+    <string name="make_and_model_of_panel">Make and Model of Panel:</string>
+    <string name="racking_system">Racking System:</string>
+    <string name="submission_date">Submission Date:</string>
 
 </resources>
