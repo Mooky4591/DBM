@@ -1,14 +1,17 @@
 package com.example.dbm.main.presentation
 
+import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.Result
+import com.example.dbm.job.presentation.objects.Job
 import com.example.dbm.main.domain.MainScreenRepository
-import com.example.dbm.main.presentation.objects.Forms
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -35,6 +38,13 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(name = mainScreenRepo.getUserName(email = userPreferences.getUserEmail()))
             state = state.copy(email = userPreferences.getUserEmail())
+                when(val project = mainScreenRepo.getUnsubmittedProjects()) {
+                    is Result.Error -> TODO()
+                    is Result.Success -> {
+                        state = state.copy(unsubmittedProjects = project.data.toMutableStateList())
+                        Log.d("MainStateUpdate", "Updated state: ${state.unsubmittedProjects}")
+                    }
+                }
         }
 
     }
@@ -85,6 +95,6 @@ data class MainState(
     val userId: String? = null,
     val searchParameters: String? = null,
     val isUserSettingsSelected: Boolean = false,
-    val unsubmittedProjects: List<Forms> = listOf(),
+    val unsubmittedProjects: MutableList<Job> = mutableStateListOf(),
     val date: LocalDate = LocalDate.now()
 )

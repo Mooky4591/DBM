@@ -12,5 +12,17 @@ interface LocalDataErrorHelper {
                 else -> Result.Error(DataError.Local.UNKNOWN)
             }
         }
+
+        fun determineNetworkDataErrorMessage(code: Int): Result<Any, DataError.Network> {
+            return when (code) {
+                408 -> Result.Error(DataError.Network.REQUEST_TIMEOUT)
+                409 -> Result.Error(DataError.Network.INCORRECT_PASSWORD_OR_EMAIL)
+                429 -> Result.Error(DataError.Network.TOO_MANY_REQUESTS)
+                413 -> Result.Error(DataError.Network.PAYLOAD_TOO_LARGE)
+                500 -> Result.Error(DataError.Network.SERVER_ERROR)
+                400 -> Result.Error(DataError.Network.SERIALIZATION)
+                else -> Result.Error(DataError.Network.UNKNOWN)
+            }
+        }
     }
 }

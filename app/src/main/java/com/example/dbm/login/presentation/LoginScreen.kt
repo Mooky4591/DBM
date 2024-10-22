@@ -126,7 +126,10 @@ fun LoginScreen(
                             CreateSignUpLink(onEvent = { onEvent(LoginEvents.OnRegisterLinkClick) })
                         }
                         Spacer(modifier = Modifier.height(8.dp))
-                        CreateSpinner(isDisplay = state.isLoggingIn)
+                        CreateSpinner(
+                            isDisplay = state.isLoggingIn,
+                            displayText = stringResource(R.string.loading)
+                        )
                     }
                 }
             }
@@ -282,7 +285,8 @@ fun CreateSignUpLink(onEvent: (LoginEvents) -> Unit) {
 
 @Composable
 fun CreateSpinner(
-    isDisplay: Boolean
+    isDisplay: Boolean,
+    displayText: String
 ) {
     val focusManager = LocalFocusManager.current
     if (isDisplay) {
@@ -297,7 +301,7 @@ fun CreateSpinner(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = "Loading...",
+            text = displayText,
             fontSize = 15.sp
         )
         focusManager.clearFocus()

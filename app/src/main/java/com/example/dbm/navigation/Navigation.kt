@@ -124,20 +124,29 @@ fun Nav() {
                 val scopeOfWorkCheckBoxStateList = jobViewModel.scopeOfWorkCheckBoxStates
                 val singleLineCheckBoxStateList = jobViewModel.singlePageCheckBoxState
                 val siteInfoStateList = jobViewModel.siteInfoQuestionStateList
+                val sitePhotoStateList = jobViewModel.sitePhotoStateList
                 val context = LocalContext.current
+                ObserveAsEvents(jobViewModel.events) { event ->
+                    when (event) {
+                        is JobEvents.OnSaveSuccessful -> {
+                            Toast.makeText(context, "Save Successful", Toast.LENGTH_SHORT).show()
+                            navController.navigateUp()
+                        }
+                        is JobEvents.OnSaveFailed -> Toast.makeText(context, event.failureMessage.asString(context), Toast.LENGTH_SHORT).show()
+                        is JobEvents.OnBackPress -> navController.navigateUp()
+                    }
+                }
                 JobScreen(
                     state = state,
                     onEvents = { event ->
-                        when (event) {
-                            is JobEvents.OnBackPress -> navController.navigateUp()
-                        }
                         jobViewModel.onEvent(event)
                     },
                     otherQuestionState = otherQuestionState,
                     scopeOfWorkCheckBoxState = scopeOfWorkCheckBoxStateList,
                     singleLineCheckBoxState = singleLineCheckBoxStateList,
                     siteInfoStateList = siteInfoStateList,
-                    questionStateList = questionStateList
+                    questionStateList = questionStateList,
+                    sitePhotoStateList = sitePhotoStateList
                 )
             }
             //Account Settings

@@ -9,31 +9,48 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4984dd18-322f-4733-82a6-42dd122db7f2" name="Changes" comment="Upgraded gradle version and room version. Fixed the register user api">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/constants/QuestionIds.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/objects/Job.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/objects/Question.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/domain/ValidateUserInfoUseCase.kt" afterDir="false" />
+    <list default="true" id="4984dd18-322f-4733-82a6-42dd122db7f2" name="Changes" comment="got check boxes working, added the project details and site information fields added to the job screen. Also fixed the password change api and got it working.">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/data/LocalDateAdapter.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/converters/Converters.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/daos/JobDao.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/entities/QuestionEntity.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/dtos/PhotoDto.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/response_objects/LoginUserApiResponse.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/data/JobRepositoryImpl.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/di/JobScreenModule.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/domain/JobRepository.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/domain/SaveJobUseCase.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/objects/Photo.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/add_icon.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/data/AuthRepositoryImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/data/AuthRepositoryImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/domain/AuthRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/domain/AuthRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/user_preferences/UserPreferencesImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/user_preferences/UserPreferencesImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/di/AuthModule.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/di/AuthModule.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/database/DbmDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/database/DbmDatabase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/entities/JobEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/local/entities/JobEntity.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/DBMApi.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/DBMApi.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/domain/user_preferences/UserPreferences.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/domain/user_preferences/UserPreferences.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/dtos/JobDTO.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/dtos/JobDTO.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/response_objects/LoginUserResponse.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/data/remote/response_objects/LoginUserResponse.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/error_handling/domain/LocalDataErrorHelper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/error_handling/domain/LocalDataErrorHelper.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/constants/QuestionIds.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/constants/QuestionIds.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobEvents.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobEvents.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/objects/Job.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/objects/Job.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/objects/Question.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/objects/Question.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/login/presentation/LoginScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/login/presentation/LoginScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/data/MainScreenRepositoryImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/data/MainScreenRepositoryImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/di/MainScreenModule.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/di/MainScreenModule.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/domain/MainScreenRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/domain/MainScreenRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/presentation/MainScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/presentation/MainScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/presentation/MainViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/presentation/MainViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/presentation/objects/Forms.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/navigation/Navigation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/navigation/Navigation.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/data/EditTextRepositoryImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/data/EditTextRepositoryImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/domain/EditTextRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/domain/EditTextRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/presentation/EditTextEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/presentation/EditTextEvent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/presentation/EditTextViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/presentation/EditTextViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/domain/use_case/RegisterUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/domain/use_case/RegisterUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/presentation/RegisterViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/presentation/RegisterViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/presentation/EditTextScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/dbm/presentation/edit_text/presentation/EditTextScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -53,12 +70,12 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Kotlin Object" />
-        <option value="Kotlin Interface" />
         <option value="Class" />
         <option value="Kotlin Enum" />
-        <option value="Kotlin Data Class" />
+        <option value="Kotlin Object" />
+        <option value="Kotlin Interface" />
         <option value="Kotlin Class" />
+        <option value="Kotlin Data Class" />
       </list>
     </option>
   </component>
@@ -90,6 +107,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Android App.app.executor&quot;: &quot;Run&quot;,
     &quot;BundleExportedModule&quot;: &quot;DBM.app&quot;,
     &quot;Compose Preview.MainScreenPreview.executor&quot;: &quot;Run&quot;,
@@ -101,7 +119,6 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;SHOW_ALL_PROCESSES&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
@@ -432,7 +449,15 @@
       <option name="project" value="LOCAL" />
       <updated>1727297295623</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="got check boxes working, added the project details and site information fields added to the job screen. Also fixed the password change api and got it working.">
+      <option name="closed" value="true" />
+      <created>1727901470269</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1727901470269</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -443,43 +468,16 @@
     <MESSAGE value="Added email validation to the registration screen" />
     <MESSAGE value="added gitignore" />
     <MESSAGE value="Upgraded gradle version and room version. Fixed the register user api" />
-    <option name="LAST_COMMIT_MESSAGE" value="Upgraded gradle version and room version. Fixed the register user api" />
+    <MESSAGE value="got check boxes working, added the project details and site information fields added to the job screen. Also fixed the password change api and got it working." />
+    <option name="LAST_COMMIT_MESSAGE" value="got check boxes working, added the project details and site information fields added to the job screen. Also fixed the password change api and got it working." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/dbm/authorization/data/AuthRepositoryImpl.kt</url>
-          <line>63</line>
-          <option name="timeStamp" value="78" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/dbm/register/presentation/RegisterViewModel.kt</url>
-          <line>99</line>
-          <option name="timeStamp" value="80" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobScreen.kt</url>
-          <line>405</line>
-          <option name="timeStamp" value="83" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobViewModel.kt</url>
-          <line>96</line>
-          <option name="timeStamp" value="87" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobScreen.kt</url>
-          <line>265</line>
-          <option name="timeStamp" value="89" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/dbm/job/presentation/JobViewModel.kt</url>
-          <line>165</line>
-          <properties>
-            <option name="lambda-ordinal" value="-1" />
-          </properties>
-          <option name="timeStamp" value="91" />
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/dbm/main/presentation/MainScreen.kt</url>
+          <line>213</line>
+          <option name="timeStamp" value="145" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

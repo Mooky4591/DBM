@@ -48,18 +48,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dbm.R
-import com.example.dbm.job.presentation.JobEvents
-import com.example.dbm.main.presentation.objects.Answer
-import com.example.dbm.main.presentation.objects.Forms
-import com.example.dbm.main.presentation.objects.Question
-import com.example.dbm.navigation.Screen
-import com.example.dbm.presentation.edit_text.presentation.EditTextEvent
+import com.example.dbm.job.constants.QuestionIds
+import com.example.dbm.job.presentation.objects.Job
 import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
@@ -147,8 +147,21 @@ fun MainScreen (
                     .fillMaxSize(),
                 shape = AbsoluteRoundedCornerShape(60.dp, 60.dp, 900.dp, 0.dp)
             ) {
-                val unsubmittedProjectsList = (0..state.unsubmittedProjects.size).toList()
-                if (unsubmittedProjectsList.size > 1) {
+                if (state.unsubmittedProjects.size >= 1) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            stringResource(R.string.unsubmitted_jobs),
+                            fontSize = 18.sp,
+                            color = Color.Black,
+                            fontFamily = FontFamily.SansSerif,
+                            style = TextStyle(
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
+                    }
                     LazyColumn(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top,
@@ -156,16 +169,8 @@ fun MainScreen (
                             .fillMaxHeight(.75f)
                             .padding(30.dp)
                     ) {
-                        items(
-                            items = state.unsubmittedProjects,
-                            key = { item -> item.formId }) { item ->
-                            Box {
-                                DisplayUnfinishedProject(
-                                    address = item.jobAddress,
-                                    dateCreated = item.dateCreated,
-                                    projectId = item.formId
-                                )
-                            }
+                        items(state.unsubmittedProjects) { job ->
+                            DisplayUnfinishedProject(job = job)
                         }
                     }
                 } else {
@@ -174,7 +179,7 @@ fun MainScreen (
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        NoUnfinishedJobsText()
+                            NoUnfinishedJobsText()
                     }
                 }
             }
@@ -202,51 +207,69 @@ fun MainScreen (
 
 @Composable
 fun DisplayUnfinishedProject(
-    address: String,
-    dateCreated: LocalDate,
-    projectId: String
+    job: Job
 ) {
-    Card(
-        colors = CardDefaults.cardColors(MellowYellow),
-        modifier = Modifier
-            .clip(MaterialTheme.shapes.medium)
-            .wrapContentSize()
-            .clickable {
-
-            }
-            .padding(5.dp)
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(8.dp),
-                clip = false
-            )
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp)
-        ) {
-            Image(painter = painterResource(id = R.drawable.alert), contentDescription = stringResource(
-                R.string.high_priority
-            )
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(text = address)
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(text = "Date Created: $dateCreated")
+        var address: String? = null
+        if (job.questionsAndAnswers?.isNotEmpty() == true) {
+            for (question in job.questionsAndAnswers!!) {
+                if (question.questionId == QuestionIds.PROJECT_ADDRESS) {
+                    address = question.answer
+                    break
+                } else {
+                    address = "No address entered"
+                }
             }
         }
+        Card(
+            colors = CardDefaults.cardColors(MellowYellow),
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.medium)
+                .wrapContentSize()
+                .clickable {
 
+                }
+                .padding(5.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(8.dp),
+                    clip = false
+                )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(15.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.alert),
+                    contentDescription = stringResource(
+                        R.string.high_priority
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(text = address ?: "")
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(text = "Date Created: ${job.dateCreated}")
+                }
+            }
+
+        }
     }
-
-}
 
 @Composable
 fun NoUnfinishedJobsText() {
-    Text(text = stringResource(R.string.no_unfinished_jobs), color = Color.Black, fontSize = 15.sp)
+    Text(
+        text = stringResource(R.string.no_unfinished_jobs),
+        color = Color.Black,
+        fontSize = 15.sp,
+        fontFamily = FontFamily.SansSerif,
+        style = TextStyle(
+            textDecoration = TextDecoration.Underline
+        )
+    )
 }
 
 @Composable
@@ -465,7 +488,11 @@ fun CreateDropDownMenu(
                 onClick = {
                     action(MainEvents.OnAccountSettingsPressed)
                 },
-                modifier = Modifier.background(color = menuItemColor)
+                modifier = Modifier
+                    .background(
+                        color = menuItemColor,
+                        shape = RoundedCornerShape(8.dp)
+                    )
             )
         }
         Divider(thickness = .5.dp, color = Color.Black)
@@ -505,13 +532,6 @@ fun DropdownMenuItemText(itemTitle: String) {
 @Preview
 @Composable
 fun MainScreenPreview(){
-    val question = Question (
-        questionId = "234",
-        questionText = "Question"
-    )
-    val answer = Answer (
-        answerText = "Answer"
-    )
     val state = MainState(
         name = "Scott Robinson",
         email = "scottrobinson4591@gmail.com",
@@ -519,26 +539,7 @@ fun MainScreenPreview(){
         userId = "sr243523",
         searchParameters = "none",
         isUserSettingsSelected = false,
-        unsubmittedProjects = listOf(
-            Forms(
-                formId = "123",
-                dateCreated = LocalDate.now().plusDays(4),
-                createdBy = "Scott Robinson",
-                jobAddress = "3171 Jessica Drive Douglasville, GA 30135",
-                companyName = "DBM Solar",
-                questionsAndAnswers = mapOf(question to answer),
-                submitted = false
-            ),
-            Forms(
-                formId = "234",
-                dateCreated = LocalDate.now().plusDays(2),
-                createdBy = "Chase Daily",
-                jobAddress = "32 Wallaby Way Sydney, Australia",
-                companyName = "DBM Solar",
-                questionsAndAnswers = mapOf(question to answer),
-                submitted = false
-            )
-        ),
+        unsubmittedProjects = mutableListOf(),
         date = LocalDate.now()
     )
     MainScreen(state = state, onEvent = {})

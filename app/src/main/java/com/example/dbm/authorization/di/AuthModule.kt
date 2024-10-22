@@ -5,7 +5,9 @@ import android.content.SharedPreferences
 import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.room.Room
 import com.example.dbm.authorization.data.AuthRepositoryImpl
+import com.example.dbm.authorization.data.LocalDateAdapter
 import com.example.dbm.authorization.domain.AuthRepository
+import com.example.dbm.data.local.daos.JobDao
 import com.example.dbm.data.local.user_preferences.UserPreferencesImpl
 import com.example.dbm.data.local.daos.UserDao
 import com.example.dbm.data.local.database.DbmDatabase
@@ -13,6 +15,7 @@ import com.example.dbm.data.remote.DBMApi
 import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.EmailValidator
 import com.example.dbm.error_handling.domain.PasswordValidator
+import com.google.gson.GsonBuilder
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -22,7 +25,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.time.LocalDate
 import javax.inject.Singleton
 
 @Module
@@ -33,10 +38,11 @@ object AuthModule {
     @Singleton
     fun provideAuthRepository(
         userDao: UserDao,
+        jobDao: JobDao,
         api: DBMApi,
         userPreferences: UserPreferences
     ): AuthRepository {
-        return AuthRepositoryImpl(userDao, api, userPreferences)
+        return AuthRepositoryImpl(userDao, api, userPreferences, jobDao)
     }
 
     @Provides
@@ -50,8 +56,12 @@ object AuthModule {
     @Provides
     @Singleton
     fun provideRetrofitInstance(httpClient: OkHttpClient): DBMApi {
+        val gson = GsonBuilder().registerTypeAdapter(LocalDate::class.java, LocalDateAdapter()).create()
         return Retrofit.Builder()
             .baseUrl("https://8wx262zas0.execute-api.us-east-1.amazonaws.com/")
+            .addConverterFactory(
+                GsonConverterFactory.create(gson)
+            )
             .addConverterFactory(
                 MoshiConverterFactory.create(
                     Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
