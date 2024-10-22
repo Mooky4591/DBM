@@ -99,7 +99,7 @@ private fun List<Question>?.toDictionary(): List<Map<String, Any?>>{
             "questionId" to question.questionId?.toString(),  // Convert to string if needed
             "answer" to question.answer,
         )
-    } ?: emptyList();
+    } ?: emptyList()
 }
 
 fun getImageDataFromUri(photo: Uri, context: Context): ByteArray? {
