@@ -169,7 +169,7 @@ fun MainScreen (
                             .padding(30.dp)
                     ) {
                         items(state.unsubmittedProjects) { job ->
-                            DisplayUnfinishedProject(job = job)
+                            DisplayUnfinishedProject(job = job, onClick = { onEvent(MainEvents.OnUnfinishedJobSelected(job.formId ?: "")) })
                         }
                     }
                 } else {
@@ -206,7 +206,8 @@ fun MainScreen (
 
 @Composable
 fun DisplayUnfinishedProject(
-    job: Job
+    job: Job,
+    onClick: () -> Unit
 ) {
         var address: String? = null
         if (job.questionsAndAnswers?.isNotEmpty() == true) {
@@ -224,15 +225,15 @@ fun DisplayUnfinishedProject(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.medium)
                 .wrapContentSize()
-                .clickable {
-
-                }
                 .padding(5.dp)
                 .shadow(
                     elevation = 8.dp,
                     shape = RoundedCornerShape(8.dp),
                     clip = false
                 )
+                .clickable {
+                    onClick()
+                }
         ) {
             Row(
                 horizontalArrangement = Arrangement.Start,

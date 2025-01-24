@@ -39,4 +39,10 @@ object JobScreenModule {
     fun provideSaveJobUseCase(jobRepository: JobRepository): SaveJobUseCase {
         return SaveJobUseCase(jobRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideContext(@ApplicationContext context: Context) : Context {
+        return context
+    }
 }

@@ -15,4 +15,6 @@ interface JobEvents {
     data class OnSaveFailed(val failureMessage: UiText) : JobEvents
     data class RemovePhoto(val uri: Uri, val questionId: QuestionIds) : JobEvents
     data class ToggleRemovePhotoMenu(val toggleRemovePhotoMenu: Boolean) : JobEvents
+    data class ToggleShouldSaveMenu(val toggleShouldSaveMenu: Boolean) : JobEvents
+    data object OnSaveUnsubmittedJob : JobEvents
 }

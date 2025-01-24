@@ -94,5 +94,25 @@
     <string name="loading">Loading...</string>
     <string name="updating">Updating...</string>
     <string name="unsubmitted_jobs">Unsubmitted Jobs</string>
+    <string name="proposed_location_of_the_inverter">Proposed Location of the Inverter</string>
+    <string name="additional_details">Additional Details</string>
+    <string name="layout_information">Layout Information</string>
+    <string name="location_of_utility_meter">Location of Utility Meter</string>
+    <string name="proposed_interconnection_method">Proposed Interconnection Method</string>
+    <string name="rating_of_the_main_bus">Rating of the Main Bus</string>
+    <string name="size_of_the_main_breaker">Size of the Main Breaker:</string>
+    <string name="location_of_the_main_service_panel">Location of the Main Service Panel</string>
+    <string name="rafter_truss_size_and_spacing">Rafter/Truss Size and Spacing</string>
+    <string name="roofing_material">Roofing Material</string>
+    <string name="roof_pitch">Roof Pitch</string>
+    <string name="location_of_service_panel">Location of Service Panel</string>
+    <string name="meter_number">Meter Number</string>
+    <string name="main_breaker_location">Main Breaker Location</string>
+    <string name="panel_data_picture_legible">Panel Data Picture (Legible)</string>
+    <string name="open_plate_service_panel">Open Plate Service Panel</string>
+    <string name="support_spacing">Support Spacing</string>
+    <string name="support_photograph">Support Photograph</string>
+    <string name="obstacles">Obstacles</string>
+    <string name="full_roof_view">Full Roof View</string>
 
 </resources>

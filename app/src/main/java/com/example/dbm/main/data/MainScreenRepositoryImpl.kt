@@ -8,6 +8,8 @@ import com.example.dbm.error_handling.domain.LocalDataErrorHelper
 import com.example.dbm.error_handling.domain.Result
 import com.example.dbm.job.presentation.objects.Job
 import com.example.dbm.main.domain.MainScreenRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import okio.IOException
 import javax.inject.Inject
 
@@ -32,17 +34,15 @@ class MainScreenRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun getUnsubmittedProjects(): Result<List<Job>, DataError.Local> {
+    override suspend fun getUnsubmittedProjects(): Result<Flow<List<Job>>, DataError.Local> {
         return try {
-            val jobs: List<JobEntity> = jobDao.getUnfinishedJobs()
-            val job: MutableList<Job> = mutableListOf()
-            for (entity in jobs) {
-                job.add(entity.toJob())
+            val job: Flow<List<Job>> = jobDao.getUnfinishedJobs().map { jobList ->
+                jobList.map { it.toJob() }
             }
             Result.Success(job)
         } catch (e: IOException) {
             LocalDataErrorHelper.determineLocalDataErrorMessage(e.message ?: "")
-        } as Result<List<Job>, DataError.Local>
+        } as Result<Flow<List<Job>>, DataError.Local>
     }
 }
 

@@ -6,9 +6,9 @@ sealed interface MainEvents {
     data object OnSearchSelected : MainEvents
     data object OnBackPress: MainEvents
     data class OnFormsHistorySelected(val userId: String) : MainEvents
-    data class UnsubmittedFormSelected(val formId: String) : MainEvents
-    data object OnAccountSettingsPressed: MainEvents
-    data object OnContactUsPressed: MainEvents
-    data object OnLogoutPressed: MainEvents
+    data object OnAccountSettingsPressed : MainEvents
+    data object OnContactUsPressed : MainEvents
+    data object OnLogoutPressed : MainEvents
     data object StartNewProject : MainEvents
+    data class OnUnfinishedJobSelected(val formId: String) : MainEvents
 }

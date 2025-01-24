@@ -11,6 +11,7 @@ import com.example.dbm.error_handling.domain.DataError
 import com.example.dbm.error_handling.domain.LocalDataErrorHelper
 import com.example.dbm.error_handling.domain.Result
 import com.example.dbm.job.domain.JobRepository
+import com.example.dbm.job.domain.objects.JobData
 import com.example.dbm.job.presentation.objects.Job
 import com.example.dbm.job.presentation.objects.Question
 import retrofit2.HttpException
@@ -44,6 +45,15 @@ class JobRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             LocalDataErrorHelper.determineLocalDataErrorMessage(e.message ?: "")
         } as Result<Boolean, DataError.Local>
+    }
+
+    override suspend fun getJobByJobId(jobId: String): Result<JobData, DataError.Local> {
+        return try {
+            val jobData = jobDao.getJobByFormId(jobId)
+            Result.Success(data = jobData)
+        } catch (e: IOException) {
+            LocalDataErrorHelper.determineLocalDataErrorMessage(e.message ?: "")
+        } as Result<JobData, DataError.Local>
     }
 }
 

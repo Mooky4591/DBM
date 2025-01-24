@@ -1,6 +1,5 @@
 package com.example.dbm.main.presentation
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,11 +37,14 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(name = mainScreenRepo.getUserName(email = userPreferences.getUserEmail()))
             state = state.copy(email = userPreferences.getUserEmail())
+
+
                 when(val project = mainScreenRepo.getUnsubmittedProjects()) {
                     is Result.Error -> TODO()
                     is Result.Success -> {
-                        state = state.copy(unsubmittedProjects = project.data.toMutableStateList())
-                        Log.d("MainStateUpdate", "Updated state: ${state.unsubmittedProjects}")
+                        project.data.collect { value ->
+                            state = state.copy(unsubmittedProjects = value.toMutableStateList())
+                        }
                     }
                 }
         }
@@ -51,10 +53,12 @@ class MainViewModel @Inject constructor(
 
     fun onEvent(event: MainEvents) {
         when (event) {
-            is MainEvents.StartNewProject -> TODO()
-            is MainEvents.UnsubmittedFormSelected -> TODO()
+            is MainEvents.StartNewProject -> { /*handled in navigation*/}
+
             is MainEvents.OnFormsHistorySelected -> TODO()
             is MainEvents.OnSearchSelected -> TODO()
+            is MainEvents.OnUnfinishedJobSelected -> { /*handled in navigation*/
+            }
             is MainEvents.OnUserSettingsSelected -> state =
                 state.copy(isUserSettingsSelected = event.isUserDropDownSelected)
 

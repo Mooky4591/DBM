@@ -1,7 +1,11 @@
 package com.example.dbm.job.presentation.objects
 
+import LocalDateSerializer
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
+@Serializable
 data class Job (
     var formId: String?,
     var email: String?,
@@ -10,8 +14,8 @@ data class Job (
     var phoneNumber: String?,
     var companyName: String?,
     var companyAddress: String?,
-    var dateCreated: LocalDate?,
-    var questionsAndAnswers: List<Question>?,
-    var photoList: List<Photo>?,
+    @Serializable(with = LocalDateSerializer::class) var dateCreated: LocalDate?,
+    @Contextual var questionsAndAnswers: List<Question>?,
+    @Contextual var photoList: List<Photo>?,
     var wasSubmitted: Boolean?
 )

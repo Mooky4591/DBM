@@ -1,6 +1,5 @@
 package com.example.dbm.navigation
 
-import com.example.dbm.presentation.edit_text.enum.EditTextType
 import kotlinx.serialization.Serializable
 
 sealed class Screen {
@@ -24,13 +23,10 @@ sealed class Screen {
     data object AccountSettings
 
     @Serializable
-    data class EditJob(val jobId: String)
-
-    @Serializable
     data object ContactUs
 
     @Serializable
-    data object Job
+    data class Job(val jobId: String)
 
     @Serializable
     data class EditText(val text: String?, val title: String)

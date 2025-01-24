@@ -105,11 +105,11 @@ fun Nav() {
                         when (event) {
                             is MainEvents.OnSearchSelected -> navController.navigate(Screen.Search)
                             is MainEvents.OnFormsHistorySelected -> navController.navigate(Screen.JobsHistory(event.userId))
-                            is MainEvents.UnsubmittedFormSelected -> navController.navigate(Screen.EditJob(event.formId))
-                            is MainEvents.StartNewProject -> navController.navigate(Screen.Job)
+                            is MainEvents.StartNewProject -> navController.navigate(Screen.Job(""))
                             is MainEvents.OnBackPress -> navController.navigateUp()
                             is MainEvents.OnAccountSettingsPressed -> navController.navigate(Screen.AccountSettings)
                             is MainEvents.OnContactUsPressed -> navController.navigate(Screen.ContactUs)
+                            is MainEvents.OnUnfinishedJobSelected -> navController.navigate(Screen.Job(event.formId))
                             else -> { mainViewModel.onEvent(event) }
                         }
                     }
@@ -126,6 +126,11 @@ fun Nav() {
                 val siteInfoStateList = jobViewModel.siteInfoQuestionStateList
                 val sitePhotoStateList = jobViewModel.sitePhotoStateList
                 val context = LocalContext.current
+                val args = it.toRoute<Screen.Job>()
+                LaunchedEffect(args) {
+                   jobViewModel.setJobId(args.jobId)
+                }
+
                 ObserveAsEvents(jobViewModel.events) { event ->
                     when (event) {
                         is JobEvents.OnSaveSuccessful -> {

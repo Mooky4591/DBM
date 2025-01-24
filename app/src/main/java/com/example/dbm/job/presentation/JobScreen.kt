@@ -115,6 +115,30 @@ fun JobScreen (
                             shouldShowSaveButton = true,
                         )
                     }
+                if (state.shouldShowSaveDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            onEvents(JobEvents.ToggleShouldSaveMenu(false)) // Toggle to hide dialog
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                onEvents(JobEvents.OnSaveUnsubmittedJob) // Trigger save action
+                                onEvents(JobEvents.ToggleShouldSaveMenu(false)) // Toggle to hide dialog after saving
+                            }) {
+                                Text("Yes")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                onEvents(JobEvents.ToggleShouldSaveMenu(false)) // Toggle to hide dialog
+                            }) {
+                                Text("No")
+                            }
+                        },
+                        title = { Text("Save Job?") },
+                        text = { Text("Would you like to save the job before leaving?") }
+                    )
+                }
                 Box (modifier = Modifier.fillMaxSize()) {
                     Surface(
                         modifier = Modifier
@@ -292,7 +316,7 @@ fun SitePictures(
                 uri?.let {
                     event(
                         it,
-                        stateList[index].questionid ?: QuestionIds.NULL_QUESTION_ID,
+                        stateList[index].questionId ?: QuestionIds.NULL_QUESTION_ID,
                         stateList[index].question ?: ""
                     )
                 }
@@ -316,7 +340,7 @@ fun SitePictures(
                 selectedIndex?.let { index ->
                     event(
                         newPhotoUri!!,
-                        stateList[index].questionid ?: QuestionIds.NULL_QUESTION_ID,
+                        stateList[index].questionId ?: QuestionIds.NULL_QUESTION_ID,
                         stateList[index].question ?: ""
                     )
                 }
@@ -382,7 +406,7 @@ fun SitePictures(
                             selectedUri = if (isMenuVisible) uri else null
                         },
                         removePhotoAction = removePhotoAction,
-                        questionIds = photoState.questionid ?: QuestionIds.NULL_QUESTION_ID)
+                        questionIds = photoState.questionId ?: QuestionIds.NULL_QUESTION_ID)
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -514,7 +538,7 @@ fun CreateCheckListGroup(
             ) {
                 Column {
                     Text(text = item.text ?: "")
-                    if (subTextList?.get(index) != null) {
+                    if (subTextList != null && index < subTextList.size) {
                         Text(text = subTextList[index], fontSize = 10.sp)
                     }
                 }
@@ -523,9 +547,9 @@ fun CreateCheckListGroup(
                     onCheckedChange = { isChecked ->
                         buttonList[index] = item.copy(
                             isChecked = isChecked,
-                            questionid = item.questionid
+                            questionId = item.questionId
                         )
-                      action(item.text ?: "", item.questionid ?: QuestionIds.NULL_QUESTION_ID, item.text ?: "", isChecked, index)
+                      action(item.text ?: "", item.questionId ?: QuestionIds.NULL_QUESTION_ID, item.text ?: "", isChecked, index)
                     }
                 )
             }
@@ -578,15 +602,15 @@ fun JobScreenPreview(){
     )
 
     val checkBoxStateList = mutableListOf(
-        CheckBoxState(isChecked = false, text = "Structural Engineering", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
-        CheckBoxState(isChecked = false, text = "Electrical Engineering", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
-        CheckBoxState(isChecked = false, text = "Full Permitting Packet", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Structural Engineering", questionId = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Electrical Engineering", questionId = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Full Permitting Packet", questionId = QuestionIds.STRUCTURAL_ENGINEERING),
     )
 
     val singleLineCheckBoxList = mutableListOf(
-        CheckBoxState(isChecked = false, text = "Single Line Electrical", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
-        CheckBoxState(isChecked = false, text = "Three Line Electrical", questionid = QuestionIds.STRUCTURAL_ENGINEERING),
-        CheckBoxState(isChecked = false, text = "Site Plan/Layouts", questionid = QuestionIds.STRUCTURAL_ENGINEERING)
+        CheckBoxState(isChecked = false, text = "Single Line Electrical", questionId = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Three Line Electrical", questionId = QuestionIds.STRUCTURAL_ENGINEERING),
+        CheckBoxState(isChecked = false, text = "Site Plan/Layouts", questionId = QuestionIds.STRUCTURAL_ENGINEERING)
     )
 
     val siteInfoList = mutableListOf(
@@ -604,15 +628,15 @@ fun JobScreenPreview(){
     )
 
     val sitePhotoList = mutableListOf(
-        PhotoState(questionid = QuestionIds.SERVICE_PANEL_LOCATION_PIC, question = "Location of Service Panel", imageUri = null),
-        PhotoState(questionid = QuestionIds.METER_NUMBER_PIC, question = "Meter Number", imageUri = null),
-        PhotoState(questionid = QuestionIds.MAIN_BREAKER_LOCATION_PIC, question = "Main Breaker Location", imageUri = null),
-        PhotoState(questionid = QuestionIds.PANEL_DATA_PIC, question = "Panel Data Picture (Legible)", imageUri = null),
-        PhotoState(questionid = QuestionIds.OPEN_PLATE_SERVICE_PANEL_PIC, question = "Open Plate Service Panel", imageUri = null),
-        PhotoState(questionid = QuestionIds.SUPPORT_SPACING_PIC, question = "Support Spacing", imageUri = null),
-        PhotoState(questionid = QuestionIds.SUPPORT_PHOTOGRAPH, question = "Support Photograph", imageUri = null),
-        PhotoState(questionid = QuestionIds.OBSTACLES_PIC, question = "Obstacles", imageUri = null),
-        PhotoState(questionid = QuestionIds.FULL_ROOF_PIC, question = "Full Roof View", imageUri = null)
+        PhotoState(questionId = QuestionIds.SERVICE_PANEL_LOCATION_PIC, question = "Location of Service Panel", imageUri = null),
+        PhotoState(questionId = QuestionIds.METER_NUMBER_PIC, question = "Meter Number", imageUri = null),
+        PhotoState(questionId = QuestionIds.MAIN_BREAKER_LOCATION_PIC, question = "Main Breaker Location", imageUri = null),
+        PhotoState(questionId = QuestionIds.PANEL_DATA_PIC, question = "Panel Data Picture (Legible)", imageUri = null),
+        PhotoState(questionId = QuestionIds.OPEN_PLATE_SERVICE_PANEL_PIC, question = "Open Plate Service Panel", imageUri = null),
+        PhotoState(questionId = QuestionIds.SUPPORT_SPACING_PIC, question = "Support Spacing", imageUri = null),
+        PhotoState(questionId = QuestionIds.SUPPORT_PHOTOGRAPH, question = "Support Photograph", imageUri = null),
+        PhotoState(questionId = QuestionIds.OBSTACLES_PIC, question = "Obstacles", imageUri = null),
+        PhotoState(questionId = QuestionIds.FULL_ROOF_PIC, question = "Full Roof View", imageUri = null)
     )
 
     JobScreen(state = state,
