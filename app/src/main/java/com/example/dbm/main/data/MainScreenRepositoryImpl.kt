@@ -1,21 +1,19 @@
 package com.example.dbm.main.data
 
-import com.example.dbm.data.local.daos.JobDao
 import com.example.dbm.data.local.daos.UserDao
-import com.example.dbm.data.local.entities.JobEntity
 import com.example.dbm.error_handling.domain.DataError
 import com.example.dbm.error_handling.domain.LocalDataErrorHelper
 import com.example.dbm.error_handling.domain.Result
+import com.example.dbm.job.domain.JobRepository
 import com.example.dbm.job.presentation.objects.Job
 import com.example.dbm.main.domain.MainScreenRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import okio.IOException
 import javax.inject.Inject
 
 class MainScreenRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
-    private val jobDao: JobDao
+    private val jobRepository: JobRepository
 ): MainScreenRepository {
 
     override suspend fun getUserName(email: String): String {
@@ -34,30 +32,15 @@ class MainScreenRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun getUnsubmittedProjects(): Result<Flow<List<Job>>, DataError.Local> {
-        return try {
-            val job: Flow<List<Job>> = jobDao.getUnfinishedJobs().map { jobList ->
-                jobList.map { it.toJob() }
-            }
-            Result.Success(job)
-        } catch (e: IOException) {
-            LocalDataErrorHelper.determineLocalDataErrorMessage(e.message ?: "")
-        } as Result<Flow<List<Job>>, DataError.Local>
+    override suspend fun getUnsubmittedJobsFromDB(): Result<Flow<List<Job>>, DataError.Local> {
+        return jobRepository.getUnsubmittedJobsFromDB()
     }
-}
 
-private fun JobEntity.toJob(): Job {
-    return Job(
-        formId = formId,
-        email = email,
-        name = "",
-        userId = userId,
-        phoneNumber = phoneNumber,
-        companyName = companyName,
-        companyAddress = companyAddress,
-        dateCreated = dateCreated,
-        questionsAndAnswers = questionList,
-        photoList = photoList,
-        wasSubmitted = wasSubmitted
-    )
+    override suspend fun deleteUnsubmittedJobsFromDB(jobId: String): Result<Boolean, DataError.Local> {
+        return jobRepository.deleteUnsubmittedJobsFromDB(jobId)
+    }
+
+    override suspend fun deleteJob(jobId: String): Result<Boolean, DataError.Network> {
+        return jobRepository.deleteUnsubmittedJobsFromAPI(jobId)
+    }
 }

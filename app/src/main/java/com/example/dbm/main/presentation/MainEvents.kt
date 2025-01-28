@@ -10,5 +10,8 @@ sealed interface MainEvents {
     data object OnContactUsPressed : MainEvents
     data object OnLogoutPressed : MainEvents
     data object StartNewProject : MainEvents
+    data class DeleteUnfinishedJob(val jobId: String) : MainEvents
+    data object DeleteUnfinishedJobFailed : MainEvents
     data class OnUnfinishedJobSelected(val formId: String) : MainEvents
+    data class ElipsisSelected(val selectedJobId: String?) : MainEvents
 }

@@ -90,9 +90,9 @@
     <string name="license_stamps">License Stamps</string>
     <string name="does_not_include_engineering_stamps">Does Not Include Engineering Stamps</string>
     <string name="please_provide_a_detailed_description_of_the_services_you_are_requesting">Please provide a detailed description of the services you are requesting</string>
-    <string name="saving_job">Saving Job...</string>
-    <string name="loading">Loading...</string>
-    <string name="updating">Updating...</string>
+    <string name="saving_job">Saving Job…</string>
+    <string name="loading">Loading…</string>
+    <string name="updating">Updating…</string>
     <string name="unsubmitted_jobs">Unsubmitted Jobs</string>
     <string name="proposed_location_of_the_inverter">Proposed Location of the Inverter</string>
     <string name="additional_details">Additional Details</string>
@@ -114,5 +114,6 @@
     <string name="support_photograph">Support Photograph</string>
     <string name="obstacles">Obstacles</string>
     <string name="full_roof_view">Full Roof View</string>
+    <string name="elipsis">elipsis</string>
 
 </resources>

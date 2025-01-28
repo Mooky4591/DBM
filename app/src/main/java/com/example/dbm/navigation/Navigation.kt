@@ -96,6 +96,11 @@ fun Nav() {
                 ObserveAsEvents(mainViewModel.event) { event ->
                     when (event) {
                         is MainEvents.OnLogoutPressed -> navController.navigate(Screen.Login)
+                        is MainEvents.DeleteUnfinishedJobFailed -> Toast.makeText(
+                            context,
+                            "Failed to delete job. Try again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         else -> {}
                     }
                 }

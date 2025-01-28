@@ -169,7 +169,15 @@ fun MainScreen (
                             .padding(30.dp)
                     ) {
                         items(state.unsubmittedProjects) { job ->
-                            DisplayUnfinishedProject(job = job, onClick = { onEvent(MainEvents.OnUnfinishedJobSelected(job.formId ?: "")) })
+                            DisplayUnfinishedProject(
+                                job = job,
+                                state = state,
+                                onClick = { onEvent(MainEvents.OnUnfinishedJobSelected(job.formId ?: "")) },
+                                onElipsisSelected = { selectedJobId ->
+                                    onEvent(MainEvents.ElipsisSelected(selectedJobId))
+                                },
+                                action = {onEvent(MainEvents.DeleteUnfinishedJob(job.formId!!))}
+                            )
                         }
                     }
                 } else {
@@ -207,7 +215,10 @@ fun MainScreen (
 @Composable
 fun DisplayUnfinishedProject(
     job: Job,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    state: MainState,
+    onElipsisSelected: (String?) -> Unit,
+    action: () -> Unit
 ) {
         var address: String? = null
         if (job.questionsAndAnswers?.isNotEmpty() == true) {
@@ -236,7 +247,7 @@ fun DisplayUnfinishedProject(
                 }
         ) {
             Row(
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxSize()
@@ -248,11 +259,35 @@ fun DisplayUnfinishedProject(
                         R.string.high_priority
                     )
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(text = address ?: "")
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(text = "Date Created: ${job.dateCreated}")
+                }
+                Surface (
+                    color = Color.Transparent
+                ) {
+                    Image(painter = painterResource(id = R.drawable.elipsis),
+                        contentDescription = stringResource(
+                            R.string.elipsis
+                        ),
+                        modifier = Modifier.clickable {
+                            val newSelectedId =
+                                if (state.selectedJobId == job.formId) null else job.formId
+                            onElipsisSelected(newSelectedId)
+                        }
+                    )
+                    if (state.selectedJobId != null) {
+                        CreateContextMenu(
+                            expanded = state.selectedJobId == job.formId,
+                            action = {action()},
+                            dismiss = {
+                                onElipsisSelected(null)},
+                            menuColor = DbmPurple,
+                            menuItemColor = Color.LightGray,
+                            jobId = job.formId!!
+                        )
+                    }
                 }
             }
 
@@ -517,6 +552,40 @@ fun CreateDropDownMenu(
                     action(MainEvents.OnLogoutPressed)
                 },
                 modifier = Modifier.background(color = menuItemColor)
+            )
+        }
+        Divider(thickness = .5.dp, color = Color.Black)
+    }
+}
+
+@Composable
+fun CreateContextMenu(
+    expanded: Boolean,
+    dismiss: (Any?) -> Unit,
+    action: (MainEvents) -> Unit,
+    menuColor: Color,
+    menuItemColor: Color,
+    jobId: String
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { dismiss(null) },
+        modifier = Modifier.background(menuColor)
+    ) {
+        Divider(thickness = .5.dp, color = Color.Black)
+        Box {
+            DropdownMenuItem(
+                text = {
+                    DropdownMenuItemText(itemTitle = stringResource(R.string.delete))
+                },
+                onClick = {
+                    action(MainEvents.DeleteUnfinishedJob(jobId))
+                },
+                modifier = Modifier
+                    .background(
+                        color = menuItemColor,
+                        shape = RoundedCornerShape(8.dp)
+                    )
             )
         }
         Divider(thickness = .5.dp, color = Color.Black)

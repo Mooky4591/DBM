@@ -17,4 +17,7 @@ interface JobDao {
 
     @Query("SELECT questionList, photoList FROM jobs_table WHERE formId = :id")
     suspend fun getJobByFormId(id: String): JobData
+
+    @Query("DELETE FROM jobs_table WHERE formId = :id")
+    suspend fun deleteJob(id: String)
 }

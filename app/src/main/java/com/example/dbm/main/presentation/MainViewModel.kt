@@ -36,10 +36,10 @@ class MainViewModel @Inject constructor(
     private fun getUserInfo() {
         viewModelScope.launch {
             state = state.copy(name = mainScreenRepo.getUserName(email = userPreferences.getUserEmail()))
-            state = state.copy(email = userPreferences.getUserEmail())
+            state = state.copy(email = userPreferences.getUserEmail(), userId = userPreferences.getUserId())
 
 
-                when(val project = mainScreenRepo.getUnsubmittedProjects()) {
+                when(val project = mainScreenRepo.getUnsubmittedJobsFromDB()) {
                     is Result.Error -> TODO()
                     is Result.Success -> {
                         project.data.collect { value ->
@@ -74,6 +74,29 @@ class MainViewModel @Inject constructor(
             is MainEvents.OnLogoutPressed -> {
                 logout(event)
             }
+
+            is MainEvents.ElipsisSelected -> {
+                state = state.copy(selectedJobId = event.selectedJobId)
+            }
+
+            is MainEvents.DeleteUnfinishedJob -> {
+                deleteUnfinishedJob(event.jobId)
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun deleteUnfinishedJob(jobId: String) {
+        viewModelScope.launch {
+            when(mainScreenRepo.deleteUnsubmittedJobsFromDB(jobId)) {
+                is Result.Success -> {
+                    mainScreenRepo.deleteJob(jobId)
+                }
+                is Result.Error -> {
+                    eventChannel.send(MainEvents.DeleteUnfinishedJobFailed)
+                }
+            }
         }
     }
 
@@ -100,5 +123,6 @@ data class MainState(
     val searchParameters: String? = null,
     val isUserSettingsSelected: Boolean = false,
     val unsubmittedProjects: MutableList<Job> = mutableStateListOf(),
-    val date: LocalDate = LocalDate.now()
+    val date: LocalDate = LocalDate.now(),
+    val selectedJobId: String? = null
 )

@@ -4,7 +4,6 @@ import com.example.dbm.data.remote.dtos.JobDTO
 import com.example.dbm.data.remote.dtos.RegisterUserDTO
 import com.example.dbm.data.remote.dtos.UpdateUserDTO
 import com.example.dbm.data.remote.response_objects.LoginUserApiResponse
-import com.example.dbm.data.remote.response_objects.LoginUserResponse
 import com.example.dbm.login.presentation.objects.Login
 import retrofit2.Response
 import retrofit2.http.Body
@@ -28,4 +27,9 @@ interface DBMApi {
     //job methods
     @POST("/prod/newJob")
     suspend fun uploadNewJob(@Body job: JobDTO)
+
+    @POST("/prod/deleteJob")
+    suspend fun deleteJob(@Body request: DeleteJobRequest)
+
+    data class DeleteJobRequest(val formId: String)
 }
