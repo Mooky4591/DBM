@@ -9,9 +9,8 @@ import com.example.dbm.account_settings.domain.AccountSettingsRepository
 import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.scopes.ViewModelScoped
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,14 +19,17 @@ class AccountSettingsViewModel @Inject constructor(
     private val userPreferences: UserPreferences,
     private val accountSettingsRepo: AccountSettingsRepository
 ) : ViewModel() {
-    var state by mutableStateOf(SettingState())
+    var state by mutableStateOf(SettingState(
+        name = userPreferences.getUserFullName(),
+        userId = userPreferences.getUserId()
+    ))
         private set
 
-    private val eventChannel = Channel<AccountSettingEvent>()
-    val event = eventChannel.receiveAsFlow()
+    private val eventChannel = MutableSharedFlow<AccountSettingEvent>()
+    val event = eventChannel.asSharedFlow()
+
 
     init {
-        state = state.copy(name = userPreferences.getUserFullName(), userId = userPreferences.getUserId())
         loadUserSettings()
     }
 

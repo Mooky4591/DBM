@@ -15,8 +15,8 @@ import com.example.dbm.presentation.edit_text.domain.EditTextRepository
 import com.example.dbm.presentation.edit_text.domain.ValidateUserInfoUseCase
 import com.example.dbm.presentation.edit_text.enum.EditTextType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,14 +26,15 @@ class EditTextViewModel @Inject constructor(
     private val editTextRepo: EditTextRepository,
     private val validatorUseCase: ValidateUserInfoUseCase
 ) : ViewModel() {
-    var state by mutableStateOf(EditTextState())
+    var state by mutableStateOf(EditTextState(
+        userId = userPreferences.getUserId()
+    ))
         private set
-    private val eventChannel = Channel<EditTextEvent>()
-    val event = eventChannel.receiveAsFlow()
+
+    private val eventChannel = MutableSharedFlow<EditTextEvent>()
+    val event = eventChannel.asSharedFlow()
 
     init {
-        val id: String = userPreferences.getUserId()
-        state = state.copy(userId = id)
         getUser()
     }
 
@@ -122,7 +123,7 @@ class EditTextViewModel @Inject constructor(
                 viewModelScope.launch {
                     when (val result = validatorUseCase.isEmailValid(state.text ?: "")) {
                         is Result.Error -> {
-                            eventChannel.send(EditTextEvent.InvalidEntry(result.error.asUiText()))
+                            eventChannel.emit(EditTextEvent.InvalidEntry(result.error.asUiText()))
                         }
 
                         is Result.Success -> {
@@ -141,10 +142,10 @@ class EditTextViewModel @Inject constructor(
                 viewModelScope.launch {
                     when (val result = validatorUseCase.isPasswordValid(state.text ?: "")) {
                         is Result.Error -> {
-                            eventChannel.send(EditTextEvent.InvalidEntry(result.error.asUiText()))
+                            eventChannel.emit(EditTextEvent.InvalidEntry(result.error.asUiText()))
                         }
                         is Result.Success -> {
-                            eventChannel.send(EditTextEvent.ValidEntry)
+                            eventChannel.emit(EditTextEvent.ValidEntry)
                             savePassword()
                         }
                     }
@@ -159,10 +160,10 @@ class EditTextViewModel @Inject constructor(
         viewModelScope.launch {
             when(val result = editTextRepo.updatePasswordToApi(state.email ?: "",state.text ?: "")) {
                 is Result.Error -> {
-                    eventChannel.send(EditTextEvent.InvalidEntry(result.error.asUiText()))
+                    eventChannel.emit(EditTextEvent.InvalidEntry(result.error.asUiText()))
                 }
                 is Result.Success -> {
-                    eventChannel.send(EditTextEvent.SaveSuccessful)
+                    eventChannel.emit(EditTextEvent.SaveSuccessful)
                 }
             }
         }
@@ -186,7 +187,7 @@ class EditTextViewModel @Inject constructor(
                 is Result.Success -> {
                     when(editTextRepo.updateUserToApi(newUser)) {
                         is Result.Success -> {
-                            eventChannel.send(EditTextEvent.SaveSuccessful)
+                            eventChannel.emit(EditTextEvent.SaveSuccessful)
                             state = state.copy(isLoggingIn = false)
                         }
                         is Result.Error -> {

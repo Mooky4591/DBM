@@ -9,7 +9,7 @@
     <string name="no_lowercase">Password must contain at least one lowercase letter</string>
     <string name="no_uppercase">Password must contain at least one uppercase letter</string>
     <string name="no_digit">Password must contain at least one digit</string>
-    <string name="unknown_network_error">Uknown network error occurred</string>
+    <string name="unknown_network_error">Unknown network error occurred</string>
     <string name="serialization_error">Invalid data format found in request</string>
     <string name="server_error">Server encountered an error. Please try your request again</string>
     <string name="payload_too_large">Attempting to send too much data to the server</string>
@@ -115,5 +115,6 @@
     <string name="obstacles">Obstacles</string>
     <string name="full_roof_view">Full Roof View</string>
     <string name="elipsis">elipsis</string>
+    <string name="no_address_entered">No address entered</string>
 
 </resources>

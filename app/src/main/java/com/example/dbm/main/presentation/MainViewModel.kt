@@ -4,16 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.Result
+import com.example.dbm.error_handling.domain.asUiText
 import com.example.dbm.job.presentation.objects.Job
 import com.example.dbm.main.domain.MainScreenRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -24,31 +26,27 @@ class MainViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    var state by mutableStateOf(MainState())
+    var state by mutableStateOf(MainState(
+        name = userPreferences.getUserFullName(),
+        email = userPreferences.getUserEmail(),
+        userId = userPreferences.getUserId()
+    )
+    )
         private set
-    private val eventChannel = Channel<MainEvents>()
-    val event = eventChannel.receiveAsFlow()
+    private val eventChannel = MutableSharedFlow<MainEvents>()
+    val event = eventChannel.asSharedFlow()
 
-    init {
-        getUserInfo()
-    }
-
-    private fun getUserInfo() {
-        viewModelScope.launch {
-            state = state.copy(name = mainScreenRepo.getUserName(email = userPreferences.getUserEmail()))
-            state = state.copy(email = userPreferences.getUserEmail(), userId = userPreferences.getUserId())
-
-
-                when(val project = mainScreenRepo.getUnsubmittedJobsFromDB()) {
-                    is Result.Error -> TODO()
-                    is Result.Success -> {
-                        project.data.collect { value ->
-                            state = state.copy(unsubmittedProjects = value.toMutableStateList())
-                        }
-                    }
-                }
+    val jobs: Flow<List<Job>> = flow {
+        when (val result = mainScreenRepo.getUnsubmittedJobsFromDB()) {
+            is Result.Success -> {
+                result.data.collect { jobList ->
+                    emit(jobList)
+                }            }
+            is Result.Error -> {
+                eventChannel.emit(MainEvents.RetrievingUnsubmittedJobsFailed(result.error.asUiText()))
+                    emit(emptyList())
+            }
         }
-
     }
 
     fun onEvent(event: MainEvents) {
@@ -94,7 +92,7 @@ class MainViewModel @Inject constructor(
                     mainScreenRepo.deleteJob(jobId)
                 }
                 is Result.Error -> {
-                    eventChannel.send(MainEvents.DeleteUnfinishedJobFailed)
+                    eventChannel.emit(MainEvents.DeleteUnfinishedJobFailed)
                 }
             }
         }
@@ -105,7 +103,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
            // when (mainScreenRepo.clearDB()) {
             //    is Result.Success -> {
-                    eventChannel.send(event)
+                    eventChannel.emit(event)
                 }
             //    is Result.Error -> {
               //      TODO("add error handling")

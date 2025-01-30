@@ -1,5 +1,7 @@
 package com.example.dbm.main.presentation
 
+import com.example.dbm.presentation.UiText
+
 
 sealed interface MainEvents {
     data class OnUserSettingsSelected(val isUserDropDownSelected: Boolean) : MainEvents
@@ -14,4 +16,5 @@ sealed interface MainEvents {
     data object DeleteUnfinishedJobFailed : MainEvents
     data class OnUnfinishedJobSelected(val formId: String) : MainEvents
     data class ElipsisSelected(val selectedJobId: String?) : MainEvents
+    data class RetrievingUnsubmittedJobsFailed(val errorText: UiText) : MainEvents
 }

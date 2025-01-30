@@ -5,6 +5,7 @@ import android.net.Uri
 import com.example.dbm.data.local.daos.JobDao
 import com.example.dbm.data.local.entities.JobEntity
 import com.example.dbm.data.remote.DBMApi
+import com.example.dbm.data.remote.dtos.DeleteJobRequest
 import com.example.dbm.data.remote.dtos.JobDTO
 import com.example.dbm.data.remote.dtos.PhotoDto
 import com.example.dbm.error_handling.domain.DataError
@@ -21,8 +22,6 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import javax.inject.Inject
-
-
 
 class JobRepositoryImpl @Inject constructor(
     private val dbmAPi: DBMApi,
@@ -69,6 +68,17 @@ class JobRepositoryImpl @Inject constructor(
         } as Result<Flow<List<Job>>, DataError.Local>
     }
 
+    override suspend fun getJobsFromDB(userId: String): Result<Flow<List<Job>>, DataError.Local> {
+        return try {
+            val job: Flow<List<Job>> = jobDao.getSubmittedJobs().map { jobList ->
+                jobList.map { it.toJob() }
+            }
+            Result.Success(job)
+        } catch (e: IOException) {
+            LocalDataErrorHelper.determineLocalDataErrorMessage(e.message ?: "")
+        } as Result<Flow<List<Job>>, DataError.Local>
+    }
+
     override suspend fun deleteUnsubmittedJobsFromDB(jobId: String): Result<Boolean, DataError.Local> {
         return try {
             jobDao.deleteJob(jobId)
@@ -80,7 +90,7 @@ class JobRepositoryImpl @Inject constructor(
 
     override suspend fun deleteUnsubmittedJobsFromAPI(jobId: String): Result<Boolean, DataError.Network> {
         return try {
-            val request = DBMApi.DeleteJobRequest(jobId)
+            val request = DeleteJobRequest(jobId)
             dbmAPi.deleteJob(request)
             Result.Success(true)
         } catch (e: HttpException) {

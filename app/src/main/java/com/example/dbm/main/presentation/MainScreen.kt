@@ -37,6 +37,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +58,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.dbm.R
 import com.example.dbm.job.constants.QuestionIds
 import com.example.dbm.job.presentation.objects.Job
@@ -70,6 +73,9 @@ fun MainScreen (
     state: MainState,
     onEvent: (MainEvents) -> Unit
 ) {
+    val viewModel: MainViewModel = hiltViewModel()
+    val jobs by viewModel.jobs.collectAsState(initial = emptyList())
+
     Scaffold (
         content = {
         Column(
@@ -168,10 +174,10 @@ fun MainScreen (
                             .fillMaxHeight(.75f)
                             .padding(30.dp)
                     ) {
-                        items(state.unsubmittedProjects) { job ->
-                            DisplayUnfinishedProject(
+                        items(jobs) { job ->
+                            DisplayProject(
                                 job = job,
-                                state = state,
+                                selectedJobId = state.selectedJobId ?: "",
                                 onClick = { onEvent(MainEvents.OnUnfinishedJobSelected(job.formId ?: "")) },
                                 onElipsisSelected = { selectedJobId ->
                                     onEvent(MainEvents.ElipsisSelected(selectedJobId))
@@ -213,23 +219,29 @@ fun MainScreen (
 }
 
 @Composable
-fun DisplayUnfinishedProject(
+fun DisplayProject(
     job: Job,
     onClick: () -> Unit,
-    state: MainState,
-    onElipsisSelected: (String?) -> Unit,
-    action: () -> Unit
+    selectedJobId: String,
+    onElipsisSelected: ((String?) -> Unit)?,
+    action: (() -> Unit)?
 ) {
         var address: String? = null
         if (job.questionsAndAnswers?.isNotEmpty() == true) {
             for (question in job.questionsAndAnswers!!) {
                 if (question.questionId == QuestionIds.PROJECT_ADDRESS) {
-                    address = question.answer
+                    address = if(!question.answer.isNullOrEmpty()) {
+                        question.answer
+                    } else {
+                        stringResource(R.string.no_address_entered)
+                    }
                     break
                 } else {
-                    address = "No address entered"
+                    address = stringResource(R.string.no_address_entered)
                 }
             }
+        } else {
+            address = stringResource(R.string.no_address_entered)
         }
         Card(
             colors = CardDefaults.cardColors(MellowYellow),
@@ -267,22 +279,29 @@ fun DisplayUnfinishedProject(
                 Surface (
                     color = Color.Transparent
                 ) {
-                    Image(painter = painterResource(id = R.drawable.elipsis),
-                        contentDescription = stringResource(
-                            R.string.elipsis
-                        ),
-                        modifier = Modifier.clickable {
-                            val newSelectedId =
-                                if (state.selectedJobId == job.formId) null else job.formId
-                            onElipsisSelected(newSelectedId)
-                        }
-                    )
-                    if (state.selectedJobId != null) {
+                    if (onElipsisSelected != null) {
+                        Image(painter = painterResource(id = R.drawable.elipsis),
+                            contentDescription = stringResource(
+                                R.string.elipsis
+                            ),
+                            modifier = Modifier.clickable {
+                                val newSelectedId =
+                                    if (selectedJobId == job.formId) null else job.formId
+                                if (onElipsisSelected != null) {
+                                    onElipsisSelected(newSelectedId)
+                                }
+                            }
+                        )
+                    }
+                    if (action != null && onElipsisSelected != null) {
                         CreateContextMenu(
-                            expanded = state.selectedJobId == job.formId,
-                            action = {action()},
+                            expanded = selectedJobId == job.formId,
+                            action = {
+                                action()
+                            },
                             dismiss = {
-                                onElipsisSelected(null)},
+                                onElipsisSelected(null)
+                            },
                             menuColor = DbmPurple,
                             menuItemColor = Color.LightGray,
                             jobId = job.formId!!
@@ -393,7 +412,7 @@ fun IconActionButton(
         isUserSettingsDropDownExpanded: Boolean?,
         name: String,
         shouldShowSettingsButton: Boolean,
-        shouldShowSaveButton: Boolean
+        shouldShowSaveButton: Boolean,
     ) {
         CreateBackButton(backPressed)
         Text(

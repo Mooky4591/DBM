@@ -11,8 +11,8 @@ import com.example.dbm.login.presentation.objects.User
 import com.example.dbm.presentation.UiText
 import com.example.dbm.register.domain.use_case.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,8 +22,9 @@ class RegisterViewModel @Inject constructor(
 ) : ViewModel() {
     var state by mutableStateOf(RegisterState())
         private set
-    private val eventChannel = Channel<RegisterEvents>()
-    val event = eventChannel.receiveAsFlow()
+
+    private val eventChannel = MutableSharedFlow<RegisterEvents>()
+    val event = eventChannel.asSharedFlow()
 
     fun onEvent(event: RegisterEvents) {
         when (event) {
@@ -55,24 +56,24 @@ class RegisterViewModel @Inject constructor(
                             when (val result = registerUseCase.registerUser(user, password)) {
                                 is Result.Success -> {
                                     state = state.copy(isRegistrationSuccessful = true)
-                                    eventChannel.send(RegisterEvents.RegistrationSuccessful)
+                                    eventChannel.emit(RegisterEvents.RegistrationSuccessful)
                                 }
                                 is Result.Error -> {
                                     state = state.copy(isRegistrationSuccessful = false)
                                     state = state.copy(networkErrorMessage = result.error.asUiText())
-                                    eventChannel.send(RegisterEvents.RegistrationFailed(state.networkErrorMessage!!))
+                                    eventChannel.emit(RegisterEvents.RegistrationFailed(state.networkErrorMessage!!))
                                 }
                             }
                         }
                         false -> {
                             state = state.copy(isRegistrationSuccessful = false)
-                            eventChannel.send(RegisterEvents.RegistrationFailed(state.invalidEmail!!))
+                            eventChannel.emit(RegisterEvents.RegistrationFailed(state.invalidEmail!!))
                         }
                     }
                 }
                 false -> {
                     state = state.copy(isRegistrationSuccessful = false)
-                    eventChannel.send(RegisterEvents.RegistrationFailed(state.passwordInvalidErrorMessage!!))
+                    eventChannel.emit(RegisterEvents.RegistrationFailed(state.passwordInvalidErrorMessage!!))
                 }
             }
         }

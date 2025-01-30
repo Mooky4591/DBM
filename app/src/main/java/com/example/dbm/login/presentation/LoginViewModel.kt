@@ -10,12 +10,12 @@ import com.example.dbm.domain.user_preferences.UserPreferences
 import com.example.dbm.error_handling.domain.PasswordValidator
 import com.example.dbm.error_handling.domain.Result
 import com.example.dbm.error_handling.domain.asUiText
-import com.example.dbm.login.presentation.objects.Login
 import com.example.dbm.login.domain.use_case.LoginUseCase
+import com.example.dbm.login.presentation.objects.Login
 import com.example.dbm.presentation.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,15 +26,13 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val userPrefs: UserPreferences
 ) : ViewModel() {
-    var state by mutableStateOf(LoginState())
+    var state by mutableStateOf(LoginState(
+        isReady = false
+    ))
         private set
 
-    private val eventChannel = Channel<LoginEvents>()
-    val events = eventChannel.receiveAsFlow()
-
-    init {
-        state = state.copy(isReady = false)
-    }
+    private val eventChannel = MutableSharedFlow<LoginEvents>()
+    val event = eventChannel.asSharedFlow()
 
     fun onEvent(event: LoginEvents) {
         when (event) {
@@ -75,13 +73,13 @@ class LoginViewModel @Inject constructor(
                         userPrefs.addUserEmail(login.email)
                         val id: String = loginResponse.data.userId ?: ""
                         userPrefs.addUserId(id)
-                        eventChannel.send(LoginEvents.LoginSuccess(login.email))
+                        eventChannel.emit(LoginEvents.LoginSuccess(login.email))
                     }
 
                     is Result.Error -> {
                         state = state.copy(loginErrorMessage = loginResponse.error.asUiText())
                         state = state.copy(isLoggingIn = false)
-                        eventChannel.send(LoginEvents.LoginFailed(state.loginErrorMessage!!))
+                        eventChannel.emit(LoginEvents.LoginFailed(state.loginErrorMessage!!))
                     }
                 }
             }

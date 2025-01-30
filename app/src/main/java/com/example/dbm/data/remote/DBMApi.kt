@@ -1,5 +1,6 @@
 package com.example.dbm.data.remote
 
+import com.example.dbm.data.remote.dtos.DeleteJobRequest
 import com.example.dbm.data.remote.dtos.JobDTO
 import com.example.dbm.data.remote.dtos.RegisterUserDTO
 import com.example.dbm.data.remote.dtos.UpdateUserDTO
@@ -30,6 +31,4 @@ interface DBMApi {
 
     @POST("/prod/deleteJob")
     suspend fun deleteJob(@Body request: DeleteJobRequest)
-
-    data class DeleteJobRequest(val formId: String)
 }

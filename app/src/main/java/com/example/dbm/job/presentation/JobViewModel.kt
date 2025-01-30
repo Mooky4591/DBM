@@ -20,8 +20,8 @@ import com.example.dbm.job.presentation.objects.Job
 import com.example.dbm.job.presentation.objects.Photo
 import com.example.dbm.job.presentation.objects.Question
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.UUID
@@ -34,7 +34,14 @@ class JobViewModel @Inject constructor(
     private val jobRepository: JobRepository,
     private val context: Context
 ) : ViewModel() {
-    var state by mutableStateOf(JobState())
+    var state by mutableStateOf(JobState(
+        email = userPreferences.getUserEmail(),
+        name = userPreferences.getUserFullName(),
+        userId = userPreferences.getUserId(),
+        companyAddress = userPreferences.getCompanyAddress(),
+        companyName = userPreferences.getCompanyName(),
+        phoneNumber = userPreferences.getUserPhoneNumber(),
+    ))
         private set
 
     var questionState by mutableStateOf(QuestionState())
@@ -54,21 +61,10 @@ class JobViewModel @Inject constructor(
     private var _projectDetailsQuestionStateList: MutableList<QuestionState> = mutableStateListOf()
     private var _siteInfoQuestionStateList: MutableList<QuestionState> = mutableStateListOf()
 
-    private val eventChannel = Channel<JobEvents>()
-    val events = eventChannel.receiveAsFlow()
+    private val eventChannel = MutableSharedFlow<JobEvents>()
+    val event = eventChannel.asSharedFlow()
     private val questionList = mutableMapOf<QuestionIds, Question>()
     private val photoList = mutableListOf<Photo>()
-
-    init {
-        state = state.copy(
-            email = userPreferences.getUserEmail(),
-            name = userPreferences.getUserFullName(),
-            userId = userPreferences.getUserId(),
-            companyAddress = userPreferences.getCompanyAddress(),
-            companyName = userPreferences.getCompanyName(),
-            phoneNumber = userPreferences.getUserPhoneNumber(),
-        )
-    }
 
     private fun setInitialStates(result: JobData?) {
 
@@ -344,7 +340,11 @@ class JobViewModel @Inject constructor(
             }
 
             is JobEvents.OnBackPress -> {
-                state = state.copy(shouldShowSaveDialog = true)
+                state = if(state.isNewJob) {
+                    state.copy(shouldShowSaveDialog = true)
+                } else {
+                    state.copy(shouldShowSaveDialog = false)
+                }
             }
 
             is JobEvents.OnSaveUnsubmittedJob -> {
@@ -355,7 +355,7 @@ class JobViewModel @Inject constructor(
                 state = state.copy(shouldShowSaveDialog = event.toggleShouldSaveMenu)
                 if (!event.toggleShouldSaveMenu) {
                     viewModelScope.launch {
-                        eventChannel.send(JobEvents.OnBackPress)
+                        eventChannel.emit(JobEvents.OnBackPress)
                     }
                 }
             }
@@ -381,18 +381,18 @@ class JobViewModel @Inject constructor(
             state = state.copy(showSpinner = true)
             when (val result = saveJobUseCase.saveJobToDB(job)) {
                 is Result.Error -> {
-                    eventChannel.send(JobEvents.OnSaveFailed(result.error.asUiText()))
+                    eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
                     state = state.copy(showSpinner = false)
                 }
 
                 is Result.Success -> {
                     when (val result = saveJobUseCase.saveJobToApi(job)) {
                         is Result.Error -> {
-                            eventChannel.send(JobEvents.OnSaveFailed(result.error.asUiText()))
+                            eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
                         }
 
                         is Result.Success -> {
-                            eventChannel.send(JobEvents.OnBackPress)
+                            eventChannel.emit(JobEvents.OnBackPress)
                             state = state.copy(showSpinner = false)
                         }
                     }
@@ -423,18 +423,18 @@ class JobViewModel @Inject constructor(
             state = state.copy(showSpinner = true)
             when (val result = saveJobUseCase.saveJobToDB(job)) {
                 is Result.Error -> {
-                    eventChannel.send(JobEvents.OnSaveFailed(result.error.asUiText()))
+                    eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
                     state = state.copy(showSpinner = false)
                 }
 
                 is Result.Success ->
                     when (val result = saveJobUseCase.saveJobToApi(job)) {
                         is Result.Error -> {
-                            eventChannel.send(JobEvents.OnSaveFailed(result.error.asUiText()))
+                            eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
                         }
 
                         is Result.Success -> {
-                            eventChannel.send(JobEvents.OnSaveSuccessful)
+                            eventChannel.emit(JobEvents.OnSaveSuccessful)
                             state = state.copy(showSpinner = false)
                         }
                     }

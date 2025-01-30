@@ -20,4 +20,7 @@ interface JobDao {
 
     @Query("DELETE FROM jobs_table WHERE formId = :id")
     suspend fun deleteJob(id: String)
+
+    @Query("SELECT * FROM jobs_table WHERE wasSubmitted = 1")
+    fun getSubmittedJobs(): Flow<List<JobEntity>>
 }

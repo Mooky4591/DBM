@@ -16,6 +16,9 @@ import com.example.dbm.account_settings.presentation.AccountSettingsViewModel
 import com.example.dbm.job.presentation.JobEvents
 import com.example.dbm.job.presentation.JobScreen
 import com.example.dbm.job.presentation.JobViewModel
+import com.example.dbm.job_search.presentation.SearchEvents
+import com.example.dbm.job_search.presentation.SearchScreen
+import com.example.dbm.job_search.presentation.SearchViewModel
 import com.example.dbm.login.presentation.LoginEvents
 import com.example.dbm.login.presentation.LoginScreen
 import com.example.dbm.login.presentation.LoginViewModel
@@ -35,91 +38,144 @@ fun Nav() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = Screen.Login) {
-            //Login Screen
-            composable<Screen.Login> {
-                val loginViewModel = hiltViewModel<LoginViewModel>()
-                val state = loginViewModel.state
-                val context = LocalContext.current
-                ObserveAsEvents(loginViewModel.events) { event ->
+        //Login Screen
+        composable<Screen.Login> {
+            val loginViewModel = hiltViewModel<LoginViewModel>()
+            val state = loginViewModel.state
+            val context = LocalContext.current
+            ObserveAsEvents(loginViewModel.event) { event ->
+                when (event) {
+                    is LoginEvents.LoginSuccess -> navController.navigate(Screen.Main)
+
+                    is LoginEvents.LoginFailed -> {
+                        Toast.makeText(
+                            context,
+                            "Log in unsuccessful: " + state.loginErrorMessage,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    else -> {}
+                }
+            }
+            LoginScreen(
+                state = state,
+                onEvent = { event ->
                     when (event) {
-                        is LoginEvents.LoginSuccess -> navController.navigate(Screen.Main)
-
-                        is LoginEvents.LoginFailed -> {
-                            Toast.makeText(
-                                context,
-                                "Log in unsuccessful: " + state.loginErrorMessage,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
+                        is LoginEvents.OnRegisterLinkClick -> navController.navigate(Screen.Register)
                         else -> {}
                     }
+                    loginViewModel.onEvent(event)
+                },
+            )
+        }
+
+        //Register Screen
+        composable<Screen.Register> {
+            val registerViewModel = hiltViewModel<RegisterViewModel>()
+            val state = registerViewModel.state
+            val context = LocalContext.current
+            ObserveAsEvents(registerViewModel.event) { event ->
+                when (event) {
+                    is RegisterEvents.RegistrationSuccessful -> navController.navigate(Screen.Login)
+
+                    is RegisterEvents.RegistrationFailed -> Toast.makeText(
+                        context,
+                        "Registration Failed: " + event.errorMessage.asString(context),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                LoginScreen(
-                    state = state,
-                    onEvent = { event ->
-                        when (event) {
-                            is LoginEvents.OnRegisterLinkClick -> navController.navigate(Screen.Register)
-                            else -> {}
-                        }
-                        loginViewModel.onEvent(event)
-                    },
-                )
             }
+            RegisterScreen(
+                state = state,
+                onEvent = { registerViewModel.onEvent(it) }
+            )
+        }
+        //Main Screen
+        composable<Screen.Main> {
+            val mainViewModel = hiltViewModel<MainViewModel>()
+            val state = mainViewModel.state
+            val context = LocalContext.current
+            ObserveAsEvents(mainViewModel.event) { event ->
+                when (event) {
+                    is MainEvents.OnLogoutPressed -> navController.navigate(Screen.Login)
+                    is MainEvents.DeleteUnfinishedJobFailed -> Toast.makeText(
+                        context,
+                        "Failed to delete job. Try again.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    is MainEvents.RetrievingUnsubmittedJobsFailed -> Toast.makeText(
+                        context,
+                        event.errorText.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
 
-            //Register Screen
-            composable<Screen.Register> {
-                val registerViewModel = hiltViewModel<RegisterViewModel>()
-                val state = registerViewModel.state
-                val context = LocalContext.current
-                ObserveAsEvents(registerViewModel.event) { event ->
+                    else -> {}
+                }
+            }
+            MainScreen(
+                state = state,
+                onEvent = { event ->
                     when (event) {
-                        is RegisterEvents.RegistrationSuccessful -> navController.navigate(Screen.Login)
+                        is MainEvents.OnSearchSelected -> navController.navigate(Screen.Search)
+                        is MainEvents.OnFormsHistorySelected -> navController.navigate(
+                            Screen.JobsHistory(
+                                event.userId
+                            )
+                        )
 
-                        is RegisterEvents.RegistrationFailed -> Toast.makeText(
+                        is MainEvents.StartNewProject -> navController.navigate(Screen.Job(""))
+                        is MainEvents.OnBackPress -> navController.navigateUp()
+                        is MainEvents.OnAccountSettingsPressed -> navController.navigate(Screen.AccountSettings)
+                        is MainEvents.OnContactUsPressed -> navController.navigate(Screen.ContactUs)
+                        is MainEvents.OnUnfinishedJobSelected -> navController.navigate(
+                            Screen.Job(
+                                event.formId
+                            )
+                        )
+
+                        else -> {
+                            mainViewModel.onEvent(event)
+                        }
+                    }
+                }
+            )
+        }
+
+        //Search
+        composable<Screen.Search> {
+            val searchViewModel = hiltViewModel<SearchViewModel>()
+            val context = LocalContext.current
+
+            ObserveAsEvents(searchViewModel.event) { event ->
+                when (event) {
+                    is SearchEvents.OnLogoutPressed -> navController.navigate(Screen.Login)
+                    is SearchEvents.RetrievingJobsFailed ->
+                        Toast.makeText(
                             context,
-                            "Registration Failed: " + event.errorMessage.asString(context),
+                            event.errorText.toString(),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
-                RegisterScreen(
-                    state = state,
-                    onEvent = { registerViewModel.onEvent(it) }
-                )
-            }
-            //Main Screen
-            composable<Screen.Main> {
-                val mainViewModel = hiltViewModel<MainViewModel>()
-                val state = mainViewModel.state
-                val context = LocalContext.current
-                ObserveAsEvents(mainViewModel.event) { event ->
-                    when (event) {
-                        is MainEvents.OnLogoutPressed -> navController.navigate(Screen.Login)
-                        is MainEvents.DeleteUnfinishedJobFailed -> Toast.makeText(
-                            context,
-                            "Failed to delete job. Try again.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        else -> {}
-                    }
-                }
-                MainScreen(
-                    state = state,
-                    onEvent = { event ->
+
+                SearchScreen(
+                    state = searchViewModel.state,
+                    onEvents = { event ->
                         when (event) {
-                            is MainEvents.OnSearchSelected -> navController.navigate(Screen.Search)
-                            is MainEvents.OnFormsHistorySelected -> navController.navigate(Screen.JobsHistory(event.userId))
-                            is MainEvents.StartNewProject -> navController.navigate(Screen.Job(""))
-                            is MainEvents.OnBackPress -> navController.navigateUp()
-                            is MainEvents.OnAccountSettingsPressed -> navController.navigate(Screen.AccountSettings)
-                            is MainEvents.OnContactUsPressed -> navController.navigate(Screen.ContactUs)
-                            is MainEvents.OnUnfinishedJobSelected -> navController.navigate(Screen.Job(event.formId))
-                            else -> { mainViewModel.onEvent(event) }
+                            is SearchEvents.OnBackPressed -> navController.navigateUp()
+                            is SearchEvents.OnAccountSettingsPressed -> navController.navigate(Screen.AccountSettings)
+                            is SearchEvents.OnContactUsPressed -> navController.navigate(Screen.ContactUs)
+                            is SearchEvents.OnJobSelected -> navController.navigate(
+                                Screen.Job(
+                                    event.formId
+                                )
+                            )
                         }
                     }
                 )
             }
+
             //Job
             composable<Screen.Job> {
                 val jobViewModel = hiltViewModel<JobViewModel>()
@@ -133,16 +189,22 @@ fun Nav() {
                 val context = LocalContext.current
                 val args = it.toRoute<Screen.Job>()
                 LaunchedEffect(args) {
-                   jobViewModel.setJobId(args.jobId)
+                    jobViewModel.setJobId(args.jobId)
                 }
 
-                ObserveAsEvents(jobViewModel.events) { event ->
+                ObserveAsEvents(jobViewModel.event) { event ->
                     when (event) {
                         is JobEvents.OnSaveSuccessful -> {
                             Toast.makeText(context, "Save Successful", Toast.LENGTH_SHORT).show()
                             navController.navigateUp()
                         }
-                        is JobEvents.OnSaveFailed -> Toast.makeText(context, event.failureMessage.asString(context), Toast.LENGTH_SHORT).show()
+
+                        is JobEvents.OnSaveFailed -> Toast.makeText(
+                            context,
+                            event.failureMessage.asString(context),
+                            Toast.LENGTH_SHORT
+                        ).show()
+
                         is JobEvents.OnBackPress -> navController.navigateUp()
                     }
                 }
@@ -168,19 +230,67 @@ fun Nav() {
                     state = state,
                     onEvent = { event ->
                         when (event) {
-                          is AccountSettingEvent.OnChangePasswordClicked -> {navController.navigate(Screen.EditText(null, context.getString(R.string.change_password)))}
-                          is AccountSettingEvent.OnCompanyNameChangeClicked -> {navController.navigate(Screen.EditText(event.companyName, EditTextType.CHANGE_COMPANY_NAME.name))}
-                          is AccountSettingEvent.OnEmailChangeClicked -> {navController.navigate(Screen.EditText(event.email, EditTextType.CHANGE_EMAIL.name))}
-                          is AccountSettingEvent.OnCompanyAddressChangeClicked -> {navController.navigate(Screen.EditText(event.companyAddress, EditTextType.CHANGE_COMPANY_ADDRESS.name))}
-                          is AccountSettingEvent.OnPhoneNumberChangeClicked -> {navController.navigate(Screen.EditText(event.number, EditTextType.CHANGE_PHONE_NUMBER.name))}
-                          is AccountSettingEvent.OnNameChangeClicked -> {navController.navigate(Screen.EditText(event.name, EditTextType.CHANGE_NAME.name))}
-                          is AccountSettingEvent.OnBackPress -> navController.navigate(Screen.Main)
+                            is AccountSettingEvent.OnChangePasswordClicked -> {
+                                navController.navigate(
+                                    Screen.EditText(
+                                        null,
+                                        context.getString(R.string.change_password)
+                                    )
+                                )
+                            }
+
+                            is AccountSettingEvent.OnCompanyNameChangeClicked -> {
+                                navController.navigate(
+                                    Screen.EditText(
+                                        event.companyName,
+                                        EditTextType.CHANGE_COMPANY_NAME.name
+                                    )
+                                )
+                            }
+
+                            is AccountSettingEvent.OnEmailChangeClicked -> {
+                                navController.navigate(
+                                    Screen.EditText(
+                                        event.email,
+                                        EditTextType.CHANGE_EMAIL.name
+                                    )
+                                )
+                            }
+
+                            is AccountSettingEvent.OnCompanyAddressChangeClicked -> {
+                                navController.navigate(
+                                    Screen.EditText(
+                                        event.companyAddress,
+                                        EditTextType.CHANGE_COMPANY_ADDRESS.name
+                                    )
+                                )
+                            }
+
+                            is AccountSettingEvent.OnPhoneNumberChangeClicked -> {
+                                navController.navigate(
+                                    Screen.EditText(
+                                        event.number,
+                                        EditTextType.CHANGE_PHONE_NUMBER.name
+                                    )
+                                )
+                            }
+
+                            is AccountSettingEvent.OnNameChangeClicked -> {
+                                navController.navigate(
+                                    Screen.EditText(
+                                        event.name,
+                                        EditTextType.CHANGE_NAME.name
+                                    )
+                                )
+                            }
+
+                            is AccountSettingEvent.OnBackPress -> navController.navigate(Screen.Main)
                         }
                         settingsViewModel.onEvent(event)
                     }
-                    )
+                )
 
-                }
+            }
             //EditTextView
             composable<Screen.EditText> {
                 val editTextViewModel = hiltViewModel<EditTextViewModel>()
@@ -199,13 +309,14 @@ fun Nav() {
                             "Invalid Entry: " + event.errorMessage.asString(context),
                             Toast.LENGTH_SHORT
                         ).show()
+
                         else -> {}
                     }
                 }
                 EditTextScreen(
                     state = state,
                     onEvent = { event ->
-                        when (event){
+                        when (event) {
                             EditTextEvent.OnBackPress -> navController.navigateUp()
                             else -> editTextViewModel.onEvent(event)
                         }
@@ -213,12 +324,8 @@ fun Nav() {
                     }
                 )
             }
-            //Contact Us
-            composable<Screen.ContactUs> {
-
-            }
+        }
     }
-}
 
 
 
