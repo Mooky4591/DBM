@@ -32,7 +32,7 @@ class MainScreenRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun getUnsubmittedJobsFromDB(): Result<Flow<List<Job>>, DataError.Local> {
+    override fun getUnsubmittedJobsFromDB(): Result<Flow<List<Job>>, DataError.Local> {
         return jobRepository.getUnsubmittedJobsFromDB()
     }
 

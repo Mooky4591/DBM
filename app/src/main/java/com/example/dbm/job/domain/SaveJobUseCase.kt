@@ -8,11 +8,7 @@ import javax.inject.Inject
 class SaveJobUseCase @Inject constructor(
     private val jobRepository: JobRepository
 ) {
-    suspend fun saveJobToApi(job: Job): Result<Boolean, DataError.Network> {
-        return jobRepository.saveJobToApi(job)
-    }
-
-    suspend fun saveJobToDB(job: Job): Result<Boolean, DataError.Local> {
-        return jobRepository.saveJobToDB(job)
+    suspend fun saveJob(job: Job): Result<Boolean, DataError.Network> {
+        return jobRepository.saveJob(job)
     }
 }

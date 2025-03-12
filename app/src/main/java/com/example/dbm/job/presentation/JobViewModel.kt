@@ -129,7 +129,7 @@ class JobViewModel @Inject constructor(
 
 // Populate photoUriMap with URIs from result.photoList
         for (photo in result?.photoList ?: emptyList()) {
-            photoUriMap[photo.questionIds]?.add(photo.photo)
+            photo.photo?.let { photoUriMap[photo.questionIds]?.add(it) }
         }
 
 // Define a map of QuestionIds to their respective question strings
@@ -326,6 +326,7 @@ class JobViewModel @Inject constructor(
 
             is JobEvents.ToggleRemovePhotoMenu -> {
                 state = state.copy(shouldShowPictureMenu = event.toggleRemovePhotoMenu)
+                navigateBack()
             }
 
             is JobEvents.RemovePhoto -> {
@@ -340,10 +341,10 @@ class JobViewModel @Inject constructor(
             }
 
             is JobEvents.OnBackPress -> {
-                state = if(state.isNewJob) {
-                    state.copy(shouldShowSaveDialog = true)
-                } else {
-                    state.copy(shouldShowSaveDialog = false)
+                state = state.copy(shouldShowSaveDialog = !state.wasJobSubmitted)
+
+                if (!state.shouldShowSaveDialog) {
+                    navigateBack()
                 }
             }
 
@@ -355,10 +356,16 @@ class JobViewModel @Inject constructor(
                 state = state.copy(shouldShowSaveDialog = event.toggleShouldSaveMenu)
                 if (!event.toggleShouldSaveMenu) {
                     viewModelScope.launch {
-                        eventChannel.emit(JobEvents.OnBackPress)
+                        eventChannel.emit(JobEvents.NavigateUp)
                     }
                 }
             }
+        }
+    }
+
+    private fun navigateBack() {
+        viewModelScope.launch {
+            eventChannel.emit(JobEvents.NavigateUp)
         }
     }
 
@@ -379,23 +386,13 @@ class JobViewModel @Inject constructor(
         )
         viewModelScope.launch {
             state = state.copy(showSpinner = true)
-            when (val result = saveJobUseCase.saveJobToDB(job)) {
+            when (val result = saveJobUseCase.saveJob(job)) {
                 is Result.Error -> {
                     eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
                     state = state.copy(showSpinner = false)
                 }
 
                 is Result.Success -> {
-                    when (val result = saveJobUseCase.saveJobToApi(job)) {
-                        is Result.Error -> {
-                            eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
-                        }
-
-                        is Result.Success -> {
-                            eventChannel.emit(JobEvents.OnBackPress)
-                            state = state.copy(showSpinner = false)
-                        }
-                    }
                 }
             }
         }
@@ -421,23 +418,15 @@ class JobViewModel @Inject constructor(
         )
         viewModelScope.launch {
             state = state.copy(showSpinner = true)
-            when (val result = saveJobUseCase.saveJobToDB(job)) {
+            when (val result = saveJobUseCase.saveJob(job)) {
                 is Result.Error -> {
                     eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
                     state = state.copy(showSpinner = false)
                 }
 
                 is Result.Success ->
-                    when (val result = saveJobUseCase.saveJobToApi(job)) {
-                        is Result.Error -> {
-                            eventChannel.emit(JobEvents.OnSaveFailed(result.error.asUiText()))
-                        }
+                    eventChannel.emit(JobEvents.OnSaveSuccessful)
 
-                        is Result.Success -> {
-                            eventChannel.emit(JobEvents.OnSaveSuccessful)
-                            state = state.copy(showSpinner = false)
-                        }
-                    }
             }
         }
     }
@@ -482,7 +471,7 @@ class JobViewModel @Inject constructor(
         )
 
         updatedImageUriList.forEach { uri ->
-            photoList.add(Photo(uri, questionId))
+            photoList.add(Photo(photoUrl = null, photo = uri, questionIds = questionId))
         }
     }
 
@@ -525,12 +514,20 @@ class JobViewModel @Inject constructor(
         if(!state.isNewJob) {
             viewModelScope.launch {
                 val jobId = state.jobId ?: return@launch
-                when(val result = jobRepository.getJobByJobId(jobId)) {
+                when(val result = jobRepository.getJobDataByJobId(jobId)) {
                     is Result.Error -> {
                         TODO()
                     }
                     is Result.Success -> {
                         setInitialStates(result.data)
+                        when(val newResult = jobRepository.getJobByJobId(jobId)) {
+                            is Result.Success -> {
+                                state = state.copy(wasJobSubmitted = newResult.data)
+                            }
+                            is Result.Error -> {
+                                //handle error
+                            }
+                        }
                     }
                 }
             }
@@ -554,7 +551,8 @@ class JobViewModel @Inject constructor(
         val shouldShowPictureMenu: Boolean = false,
         val shouldShowSaveDialog: Boolean = false,
         val showSpinner: Boolean = false,
-        val isNewJob: Boolean = true
+        val isNewJob: Boolean = true,
+        val wasJobSubmitted: Boolean = false
     )
 
     data class QuestionState(

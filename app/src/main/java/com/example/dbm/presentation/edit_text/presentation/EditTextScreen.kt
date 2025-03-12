@@ -69,7 +69,8 @@ fun EditTextScreen(
                      userSettingsPressed = {},
                      shouldShowSettingsButton = false,
                      shouldShowSaveButton = true,
-                     save = { onEvent(EditTextEvent.OnSavePressed) }
+                     save = { onEvent(EditTextEvent.OnSavePressed) },
+                     isSaveEnabled = true
                  )
              }
              Surface(

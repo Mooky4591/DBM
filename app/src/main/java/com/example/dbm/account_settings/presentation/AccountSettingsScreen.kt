@@ -30,9 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.dbm.R
 import com.example.dbm.main.presentation.CreateTopBar
 import com.example.dbm.register.presentation.CreateTextField
-import com.example.dbm.R
 
 @Composable
 fun AccountSettingsScreen(
@@ -71,6 +71,7 @@ fun AccountSettingsScreen(
                         userSettingsPressed = {},
                         shouldShowSettingsButton = false,
                         shouldShowSaveButton = true,
+                        isSaveEnabled = true
                     )
                 }
                 Surface(

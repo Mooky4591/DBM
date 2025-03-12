@@ -129,7 +129,7 @@ return JobEntity(
     email = email ?: "",
     wasSubmitted = wasSubmitted ?: false,
     questionList = questionsAndAnswers ?: emptyList(),
-    photoList = photoList ?: emptyList()
+    photoList = photoList
 )
 
 }

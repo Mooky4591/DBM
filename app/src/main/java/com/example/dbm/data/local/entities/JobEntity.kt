@@ -21,5 +21,5 @@ data class JobEntity(
     var email: String,
     var wasSubmitted: Boolean,
     var questionList: List<Question>?,
-    var photoList: List<Photo>
+    var photoList: List<Photo>?
 )

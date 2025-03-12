@@ -37,8 +37,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,7 +56,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.dbm.R
 import com.example.dbm.job.constants.QuestionIds
 import com.example.dbm.job.presentation.objects.Job
@@ -71,11 +68,9 @@ import java.time.LocalDate
 @Composable
 fun MainScreen (
     state: MainState,
-    onEvent: (MainEvents) -> Unit
+    onEvent: (MainEvents) -> Unit,
+    jobs: List<Job> = emptyList()
 ) {
-    val viewModel: MainViewModel = hiltViewModel()
-    val jobs by viewModel.jobs.collectAsState(initial = emptyList())
-
     Scaffold (
         content = {
         Column(
@@ -111,6 +106,7 @@ fun MainScreen (
                         },
                         shouldShowSettingsButton = true,
                         shouldShowSaveButton = false,
+                        isSaveEnabled = false,
                         action = { event ->
                             when (event) {
                                 MainEvents.OnAccountSettingsPressed -> {
@@ -152,7 +148,7 @@ fun MainScreen (
                     .fillMaxSize(),
                 shape = AbsoluteRoundedCornerShape(60.dp, 60.dp, 900.dp, 0.dp)
             ) {
-                if (state.unsubmittedProjects.size >= 1) {
+                if (jobs.isNotEmpty()) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -182,9 +178,11 @@ fun MainScreen (
                                 onElipsisSelected = { selectedJobId ->
                                     onEvent(MainEvents.ElipsisSelected(selectedJobId))
                                 },
-                                action = {onEvent(MainEvents.DeleteUnfinishedJob(job.formId!!))}
+                                action = {onEvent(MainEvents.DeleteUnfinishedJob(job.formId!!))},
+                                shouldShowHighPriorityIcon = true
                             )
                         }
+
                     }
                 } else {
                     Row (
@@ -224,7 +222,8 @@ fun DisplayProject(
     onClick: () -> Unit,
     selectedJobId: String,
     onElipsisSelected: ((String?) -> Unit)?,
-    action: (() -> Unit)?
+    action: (() -> Unit)?,
+    shouldShowHighPriorityIcon: Boolean
 ) {
         var address: String? = null
         if (job.questionsAndAnswers?.isNotEmpty() == true) {
@@ -265,12 +264,14 @@ fun DisplayProject(
                     .fillMaxSize()
                     .padding(15.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.alert),
-                    contentDescription = stringResource(
-                        R.string.high_priority
+                if (shouldShowHighPriorityIcon) {
+                    Image(
+                        painter = painterResource(id = R.drawable.alert),
+                        contentDescription = stringResource(
+                            R.string.high_priority
+                        )
                     )
-                )
+                }
                 Column {
                     Text(text = address ?: "")
                     Spacer(modifier = Modifier.height(5.dp))
@@ -413,6 +414,7 @@ fun IconActionButton(
         name: String,
         shouldShowSettingsButton: Boolean,
         shouldShowSaveButton: Boolean,
+        isSaveEnabled: Boolean
     ) {
         CreateBackButton(backPressed)
         Text(
@@ -458,7 +460,7 @@ fun IconActionButton(
                 )
             }
         } else if (shouldShowSaveButton){
-            CreateSaveButton(onEvent = save)
+            CreateSaveButton(onEvent = save, isEnabled = isSaveEnabled)
         }
     }
 
@@ -480,18 +482,24 @@ fun CreateBackButton(
 
 @Composable
 fun CreateSaveButton(
-    onEvent: () -> Unit
+    onEvent: () -> Unit,
+    isEnabled: Boolean
 ) {
     Surface (
         color = Color.Transparent,
         modifier = Modifier.wrapContentSize()
     ) {
         TextButton(
+            enabled = isEnabled,
             onClick = { onEvent() }
         ) {
             Text(
                 text = stringResource(id = R.string.save),
-                color = Color.White
+                color = if (isEnabled) {
+                    Color.White
+                } else {
+                    Color.Gray
+                }
             )
         }
     }
@@ -627,7 +635,6 @@ fun MainScreenPreview(){
         userId = "sr243523",
         searchParameters = "none",
         isUserSettingsSelected = false,
-        unsubmittedProjects = mutableListOf(),
         date = LocalDate.now()
     )
     MainScreen(state = state, onEvent = {})

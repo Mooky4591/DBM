@@ -113,6 +113,7 @@ fun JobScreen (
                             userSettingsPressed = {},
                             shouldShowSettingsButton = false,
                             shouldShowSaveButton = true,
+                            isSaveEnabled = !state.wasJobSubmitted
                         )
                     }
                 if (state.shouldShowSaveDialog) {
@@ -179,8 +180,9 @@ fun JobScreen (
                                 },
                                 buttonList = scopeOfWorkCheckBoxState.toMutableList(),
                                 subTextList = subTextList,
+                                isEnabled = !state.wasJobSubmitted
                             )
-                            createLabel(label = stringResource(R.string.for_single_pages))
+                            CreateLabel(label = stringResource(R.string.for_single_pages))
                             CreateCheckListGroup(
                                 action = {
                                         scopeOfWorkString, questionIds, questionTxt, isChecked, index ->
@@ -196,6 +198,7 @@ fun JobScreen (
                                 },
                                 buttonList = singleLineCheckBoxState.toMutableList(),
                                 subTextList = null,
+                                isEnabled = !state.wasJobSubmitted
                             )
                             CreateOtherSection(
                                 action = {
@@ -208,7 +211,8 @@ fun JobScreen (
                                         )
                                     )
                                 },
-                                otherQuestionState = otherQuestionState
+                                otherQuestionState = otherQuestionState,
+                                isEnabled = !state.wasJobSubmitted
                             )
                             ProjectDetails(
                                 onEvents = {
@@ -221,7 +225,8 @@ fun JobScreen (
                                         )
                                     )
                                 },
-                                stateList = questionStateList.toMutableList()
+                                stateList = questionStateList.toMutableList(),
+                                isEnabled = !state.wasJobSubmitted
                             )
                             SiteInformation(
                                 onEvents = {
@@ -234,7 +239,8 @@ fun JobScreen (
                                     )
                                 )
                             },
-                                stateList = siteInfoStateList.toMutableList()
+                                stateList = siteInfoStateList.toMutableList(),
+                                isEnabled = !state.wasJobSubmitted
                             )
                             SitePictures(
                                 stateList = sitePhotoStateList.toMutableList(),
@@ -249,7 +255,8 @@ fun JobScreen (
                                 removePhotoAction = {
                                     uri, questionId ->
                                     onEvents(JobEvents.RemovePhoto(uri, questionId))
-                                }
+                                },
+                                isEnabled = !state.wasJobSubmitted
                             )
                         }
                     }
@@ -274,6 +281,7 @@ fun JobScreen (
                         onClick = { onEvents(JobEvents.OnSaveJob) },
                         text = stringResource(R.string.submit_project),
                         width = 300.dp,
+                        isEnabled = !state.wasJobSubmitted
                     )
                 }
             }
@@ -284,13 +292,15 @@ fun JobScreen (
 @Composable
 fun CreateOtherSection(
     action: (String, QuestionIds, String) -> Unit,
-    otherQuestionState: QuestionState
+    otherQuestionState: QuestionState,
+    isEnabled: Boolean
 ) {
-    createLabel(label = stringResource(R.string.other))
+    CreateLabel(label = stringResource(R.string.other))
     CreateTextFieldForJobScreen(
         hint = stringResource(R.string.please_provide_a_detailed_description_of_the_services_you_are_requesting),
         onEvent = { text -> action(text, otherQuestionState.questionId ?: QuestionIds.NULL_QUESTION_ID, text) },
-        response = otherQuestionState.response ?: ""
+        response = otherQuestionState.response ?: "",
+        isEnabled = isEnabled
     )
 }
 
@@ -298,9 +308,10 @@ fun CreateOtherSection(
 fun SitePictures(
     stateList: MutableList<PhotoState>,
     event: (Uri, QuestionIds, String) -> Unit,
-    removePhotoAction: (Uri, QuestionIds) -> Unit
+    removePhotoAction: (Uri, QuestionIds) -> Unit,
+    isEnabled: Boolean
 ) {
-    createLabel(label = stringResource(R.string.site_photos))
+    CreateLabel(label = stringResource(R.string.site_photos))
 
     val context = LocalContext.current
     var selectedIndex by remember { mutableStateOf<Int?>(null) } // Declare a variable to hold the selected index
@@ -392,14 +403,19 @@ fun SitePictures(
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.add_icon),
                     contentDescription = stringResource(R.string.add_image),
-                    modifier = Modifier.clickable {
+                    modifier = Modifier.clickable(enabled = isEnabled) {
                         selectedIndex = index
                         showDialog = true // Show the dialog when the icon is clicked
+                    },
+                    tint = if (isEnabled) {
+                        Color.Black
+                    } else {
+                        Color.Gray
                     }
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 photoState.imageUri?.forEach { uri ->
-                    createImage(
+                    CreateImages(
                         uri,
                         shouldShowMenu = selectedUri == uri,
                         onPhotoClicked = { isMenuVisible ->
@@ -414,14 +430,14 @@ fun SitePictures(
     }
 }
 @Composable
-fun createLabel(label: String) {
+fun CreateLabel(label: String) {
     Spacer(modifier = Modifier.height(8.dp))
     Text(text = label, fontWeight = Bold, fontSize = 15.sp)
     Spacer(modifier = Modifier.height(5.dp))
 }
 
 @Composable
-fun createImage(
+fun CreateImages(
     uri: Uri,
     shouldShowMenu: Boolean,
     onPhotoClicked: (Boolean) -> Unit,
@@ -479,28 +495,10 @@ fun createImage(
 @Composable
 fun SiteInformation(
     onEvents: (String, QuestionIds, String) -> Unit,
-    stateList: MutableList<QuestionState>
+    stateList: MutableList<QuestionState>,
+    isEnabled: Boolean
 ) {
-    createLabel(label = stringResource(id = R.string.site_information))
-
-    stateList.forEach { questionState ->
-        CreateTextFieldForJobScreen(
-            hint = questionState.questionTxt ?: "",
-            onEvent = { text ->
-                onEvents(text, questionState.questionId ?: QuestionIds.NULL_QUESTION_ID, questionState.questionTxt.toString())
-                      },
-            response = questionState.response ?: ""
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-    }
-}
-
-@Composable
-fun ProjectDetails(
-    onEvents: (String, QuestionIds, String) -> Unit,
-    stateList: MutableList<QuestionState>
-) {
-   createLabel(label = stringResource(R.string.project_details))
+    CreateLabel(label = stringResource(id = R.string.site_information))
 
     stateList.forEach { questionState ->
         CreateTextFieldForJobScreen(
@@ -509,6 +507,28 @@ fun ProjectDetails(
                 onEvents(text, questionState.questionId ?: QuestionIds.NULL_QUESTION_ID, questionState.questionTxt.toString())
                       },
             response = questionState.response ?: "",
+            isEnabled = isEnabled
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+    }
+}
+
+@Composable
+fun ProjectDetails(
+    onEvents: (String, QuestionIds, String) -> Unit,
+    stateList: MutableList<QuestionState>,
+    isEnabled: Boolean
+) {
+   CreateLabel(label = stringResource(R.string.project_details))
+
+    stateList.forEach { questionState ->
+        CreateTextFieldForJobScreen(
+            hint = questionState.questionTxt ?: "",
+            onEvent = { text ->
+                onEvents(text, questionState.questionId ?: QuestionIds.NULL_QUESTION_ID, questionState.questionTxt.toString())
+                      },
+            response = questionState.response ?: "",
+            isEnabled = isEnabled
         )
         Spacer(modifier = Modifier.height(5.dp))
     }
@@ -519,6 +539,7 @@ fun CreateCheckListGroup(
     action: (String, QuestionIds, String, Boolean, Int) -> Unit,
     buttonList: MutableList<CheckBoxState>,
     subTextList: List<String>?,
+    isEnabled: Boolean
 ) {
 
     Spacer(modifier = Modifier.height(5.dp))
@@ -550,7 +571,8 @@ fun CreateCheckListGroup(
                             questionId = item.questionId
                         )
                       action(item.text ?: "", item.questionId ?: QuestionIds.NULL_QUESTION_ID, item.text ?: "", isChecked, index)
-                    }
+                    },
+                    enabled = isEnabled
                 )
             }
             Divider()
@@ -655,6 +677,7 @@ fun CreateTextFieldForJobScreen(
     hint: String,
     onEvent: (String) -> Unit,
     response: String,
+    isEnabled: Boolean
 ) {
 
     TextField(
@@ -672,6 +695,7 @@ fun CreateTextFieldForJobScreen(
             disabledTextColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-        )
+        ),
+        enabled = isEnabled
     )
 }

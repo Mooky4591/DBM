@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dbm.R
-import com.example.dbm.login.presentation.objects.Login
 import com.example.dbm.presentation.theme.DbmPurple
 import com.example.dbm.presentation.theme.GradientDarkPurple
 import com.example.dbm.presentation.theme.GradientPink
@@ -115,7 +114,8 @@ fun LoginScreen(
                                 text = stringResource(
                                     id = R.string.login
                                 ),
-                                width = 200.dp
+                                width = 200.dp,
+                                isEnabled = true
                             )
                         }
                         Spacer(modifier = Modifier.height(5.dp))
@@ -234,7 +234,8 @@ fun CreateHidePasswordToggle(isPasswordVisible: Boolean, onClick: (Boolean) -> U
 fun ActionButton(
     onClick: () -> Unit,
     text: String,
-    width: Dp
+    width: Dp,
+    isEnabled: Boolean
 ) {
     Button(
         onClick = {
@@ -246,17 +247,23 @@ fun ActionButton(
         modifier = Modifier
             .width(width)
             .wrapContentHeight(),
-        contentPadding = PaddingValues()
+        contentPadding = PaddingValues(),
+        enabled = isEnabled
     ) {
         Box(
             modifier = Modifier
                 .background(
                     Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(GradientPink.value),
-                            Color(DbmPurple.value),
-                            Color(GradientDarkPurple.value)
-                        )
+                        colors = if (isEnabled) {
+                            listOf(
+                                Color(GradientPink.value),
+                                Color(DbmPurple.value),
+                                Color(GradientDarkPurple.value)
+                            )
+                        } else {
+                            listOf(Color.Gray, Color.LightGray, Color.DarkGray)
+
+                        }
                     )
                 )
                 .width(width)

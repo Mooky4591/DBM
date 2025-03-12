@@ -11,6 +11,7 @@ interface JobEvents {
     data class OnQuestionAnswered(val response: String, val questionId: QuestionIds, val questionTxt: String) : JobEvents
     data class OnPhotoAdded(val uri: Uri, val questionId: QuestionIds, val questionTxt: String) : JobEvents
     data object OnSaveJob: JobEvents
+    data object NavigateUp: JobEvents
     data object OnSaveSuccessful : JobEvents
     data class OnSaveFailed(val failureMessage: UiText) : JobEvents
     data class RemovePhoto(val uri: Uri, val questionId: QuestionIds) : JobEvents

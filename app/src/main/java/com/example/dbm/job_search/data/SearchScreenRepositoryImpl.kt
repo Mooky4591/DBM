@@ -11,7 +11,7 @@ import javax.inject.Inject
 class SearchScreenRepositoryImpl @Inject constructor(
     private val jobRepository: JobRepository
 ): SearchScreenRepository {
-    override suspend fun getJobs(userId: String): Result<Flow<List<Job>>, DataError.Local> {
+    override fun getJobs(userId: String): Result<Flow<List<Job>>, DataError.Local> {
         return jobRepository.getJobsFromDB(userId)
     }
 }

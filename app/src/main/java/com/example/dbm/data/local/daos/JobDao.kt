@@ -16,7 +16,10 @@ interface JobDao {
     fun getUnfinishedJobs(): Flow<List<JobEntity>>
 
     @Query("SELECT questionList, photoList FROM jobs_table WHERE formId = :id")
-    suspend fun getJobByFormId(id: String): JobData
+    suspend fun getJobDataByFormId(id: String): JobData
+
+    @Query("SELECT wasSubmitted FROM jobs_table WHERE formId = :id")
+    suspend fun getJobByFormId(id: String): Int
 
     @Query("DELETE FROM jobs_table WHERE formId = :id")
     suspend fun deleteJob(id: String)

@@ -3,6 +3,8 @@ package com.example.dbm.navigation
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -96,6 +98,7 @@ fun Nav() {
             val mainViewModel = hiltViewModel<MainViewModel>()
             val state = mainViewModel.state
             val context = LocalContext.current
+            val jobs by mainViewModel.jobs.collectAsState(initial = emptyList())
             ObserveAsEvents(mainViewModel.event) { event ->
                 when (event) {
                     is MainEvents.OnLogoutPressed -> navController.navigate(Screen.Login)
@@ -114,6 +117,7 @@ fun Nav() {
                 }
             }
             MainScreen(
+                jobs = jobs,
                 state = state,
                 onEvent = { event ->
                     when (event) {
@@ -146,6 +150,7 @@ fun Nav() {
         composable<Screen.Search> {
             val searchViewModel = hiltViewModel<SearchViewModel>()
             val context = LocalContext.current
+            val jobs by searchViewModel.jobs.collectAsState(initial = emptyList())
 
             ObserveAsEvents(searchViewModel.event) { event ->
                 when (event) {
@@ -160,6 +165,7 @@ fun Nav() {
                 }
 
                 SearchScreen(
+                    jobs = jobs,
                     state = searchViewModel.state,
                     onEvents = { event ->
                         when (event) {
@@ -196,7 +202,7 @@ fun Nav() {
                     when (event) {
                         is JobEvents.OnSaveSuccessful -> {
                             Toast.makeText(context, "Save Successful", Toast.LENGTH_SHORT).show()
-                            navController.navigateUp()
+                            navController.navigate(Screen.Main)
                         }
 
                         is JobEvents.OnSaveFailed -> Toast.makeText(
@@ -205,7 +211,7 @@ fun Nav() {
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        is JobEvents.OnBackPress -> navController.navigateUp()
+                        is JobEvents.NavigateUp -> navController.navigateUp()
                     }
                 }
                 JobScreen(
